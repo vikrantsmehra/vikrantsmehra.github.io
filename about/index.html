@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About — Vikrant Mehra</title>
+<meta name="description" content="About Vikrant Mehra." />
+<link rel="canonical" href="https://vikrantsmehra.github.io/about/" />
+<meta property="og:title" content="About — Vikrant Mehra" />
+<meta property="og:description" content="About Vikrant Mehra." />
+<meta property="og:url" content="https://vikrantsmehra.github.io/about/" />
+<meta property="og:type" content="website" />
+
+<!-- about-v1 layout, restyled to the shared system used by "2,643 Tracks Later" and the Swipe File:
+     Bricolage Grotesque (display) / Source Serif 4 (body) / DM Mono (labels),
+     paper #fbfbf9, ink #131419, pen #c2410c, light + dark themes. Flat page, no backdrop (Home only). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #fbfbf9; --ink: #131419; --ink-2: #474a55; --muted: #636775; --line: #e1e3e8;
+    --hi: rgba(255,196,0,.42); --pen: #c2410c;
+    --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --mono: "DM Mono", ui-monospace, Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --paper: #16171c; --ink: #f2f2f4; --ink-2: #c4c6ce; --muted: #8e919d; --line: #2d3038;
+    --hi: rgba(237,161,0,.34); --pen: #ffb38a;
+    color-scheme: dark; } }
+  :root[data-theme="dark"]{
+    --paper: #16171c; --ink: #f2f2f4; --ink-2: #c4c6ce; --muted: #8e919d; --line: #2d3038;
+    --hi: rgba(237,161,0,.34); --pen: #ffb38a;
+    color-scheme: dark;
+  }
+  *{ box-sizing: border-box; }
+  html, body{ margin:0; min-height:100%; color: var(--ink); }
+  body{ font-family: var(--serif); font-size: 18px; background: var(--paper); }
+
+  .page{ min-height:100vh; display:flex; flex-direction:column; }
+
+  header{
+    display:flex; align-items:baseline; justify-content:space-between; gap: 1rem; flex-wrap: wrap;
+    padding: 1.75rem 2rem;
+    max-width: 1140px; width:100%; margin: 0 auto;
+  }
+  header .wordmark{
+    font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -.02em;
+    text-decoration:none; color: var(--ink);
+  }
+  header nav{ display:flex; gap: 1.5rem; }
+  header nav a{
+    font-family: var(--mono); font-weight: 500; font-size: 13px;
+    letter-spacing: .12em; text-transform: uppercase;
+    text-decoration:none; color: var(--ink-2);
+    border-bottom: 1.5px solid transparent; padding-bottom: 2px;
+  }
+  header nav a.current{ color: var(--ink); border-bottom-color: var(--pen); }
+  header nav a:hover{ color: var(--pen); }
+
+  .layout{
+    flex:1 1 auto;
+    max-width: 1140px; width:100%; margin: 0 auto;
+    padding: 1rem 2rem 3rem;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 280px;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .kicker{
+    font-family: var(--mono); font-size: 13.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+  h1{
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: .98; letter-spacing: -.035em;
+    font-variation-settings: "opsz" 96;
+    margin: 0 0 18px;
+  }
+  .intro{
+    font-size: 21px; line-height: 1.45; color: var(--ink-2);
+    max-width: 36em; margin: 0 0 2.5rem;
+  }
+
+  .entries{ display:flex; flex-direction:column; }
+  .entry{
+    display:block; text-decoration:none; color: var(--ink);
+    padding: 1.5rem 0; border-top: 1px solid var(--line);
+  }
+  .entry:last-child{ border-bottom: 1px solid var(--line); }
+  .entry-top{ display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+  .entry h2{
+    font-family: var(--display); font-weight: 600;
+    font-size: 24px; line-height: 1.15; letter-spacing: -.01em;
+    margin: 0;
+  }
+  a.entry h2{ text-decoration: underline; text-decoration-color: var(--pen); text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+  a.entry:hover h2{ color: var(--pen); }
+  .entry .action{ display:inline-flex; color: var(--pen); line-height: 1; flex: none; }
+  .entry .action svg{ width: 1.75rem; height: 1.75rem; }
+  .entry .tag{
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); flex: none;
+  }
+  .entry p{
+    margin: 0.5rem 0 0; font-size: 17px; line-height: 1.5;
+    color: var(--ink-2); max-width: 58ch;
+  }
+
+  /* sidebar — bordered box with the label cut into the border (fieldset/legend) */
+  aside{ display:flex; flex-direction:column; gap: 1.75rem; }
+  fieldset{
+    border: 1px solid var(--line); border-radius: 8px;
+    margin: 0; padding: 1.1rem 1.25rem 1.35rem;
+    width: 100%; min-width: 0;
+  }
+  legend{
+    font-family: var(--mono); font-weight: 500; font-size: 12px;
+    letter-spacing: .12em; text-transform: uppercase;
+    padding: 0 0.5rem; margin-left: -0.5rem; color: var(--muted);
+  }
+  .side-list{ display:flex; flex-direction:column; gap: 0.9rem; }
+  .side-list a{
+    font-size: 16px; font-weight: 600; color: var(--ink);
+    text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px;
+  }
+  .side-list a:hover{ text-decoration-color: var(--pen); color: var(--pen); }
+  .side-list .desc{ display:block; font-size: 14.5px; color: var(--muted); margin-top: 0.15rem; line-height: 1.4; }
+  .side-list .row{ display:flex; flex-direction:column; }
+  .side-list .label{
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.15rem;
+  }
+
+  footer{
+    text-align:center; padding: 1rem 16px 2rem;
+    font-family: var(--mono); font-size: 13px; color: var(--muted);
+  }
+  footer a{ color: var(--ink-2); }
+
+  @media (max-width: 760px){
+    header{ padding: 1.25rem 16px; }
+    .layout{ grid-template-columns: 1fr; gap: 2.5rem; padding: 0.5rem 16px 2.5rem; }
+    .intro{ font-size: 19px; }
+  }
+  main > p{ font-size: 21px; line-height: 1.55; color: var(--ink); max-width: 36em; margin: 0; }
+  main > p a{ color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--pen); text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+  main > p a:hover{ color: var(--pen); }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <a class="wordmark" href="../">Vikrant Mehra</a>
+    <nav>
+      <a href="../work/">Work</a>
+      <a href="../play/">Play</a>
+      <a href="./" class="current">About</a>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <main>
+      <div class="kicker">About</div>
+      <h1>About Me</h1>
+      <p>I care a lot about things being considered — done with real craft, not just shipped. That's true of how I work at Accel, and it's true of everything else I spend my time on — the communities I run, the band I play in, the things I build for fun. More of that lives in <a href="../play/">Play</a>.</p>
+    </main>
+
+    <aside>
+      <fieldset>
+        <legend>Elsewhere</legend>
+        <div class="side-list">
+          <div class="row"><span class="label">LinkedIn</span><a href="https://www.linkedin.com/in/vikrantsmehra/" target="_blank" rel="noopener">/in/vikrantsmehra</a></div>
+          <div class="row"><span class="label">X</span><a href="https://x.com/vthemehra1" target="_blank" rel="noopener">@vthemehra1</a></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Reading</legend>
+        <div class="side-list">
+          <div class="row"><a href="https://paulgraham.com/taste.html" target="_blank" rel="noopener">Taste — Paul Graham</a><span class="desc">On what taste is, where it comes from and why it matters.</span></div>
+          <div class="row"><a href="https://paulgraham.com/greatwork.html" target="_blank" rel="noopener">How to do Great Work</a><span class="desc">A long and serious essay on finding and doing work that matters.</span></div>
+          <div class="row"><a href="https://sriramk.com/group-chats-rule-the-world" target="_blank" rel="noopener">Group Chats Rule the World</a><span class="desc">Most of the interesting conversations in tech now happen in private group chats.</span></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>References I Admire</legend>
+        <div class="side-list">
+          <div class="row"><a href="https://pudding.cool" target="_blank" rel="noopener">The Pudding</a><span class="desc">Visual essays that use data and scrollytelling to explore culture and sport.</span></div>
+          <div class="row"><a href="https://teenage.engineering" target="_blank" rel="noopener">Teenage Engineering</a><span class="desc">Swedish industrial design studio — a website as art object.</span></div>
+          <div class="row"><a href="https://press.stripe.com" target="_blank" rel="noopener">Stripe Press</a><span class="desc">Stripe's publishing arm — books and essays on science, economics and progress.</span></div>
+        </div>
+      </fieldset>
+    </aside>
+  </div>
+
+</div>
+</body>
+</html>
