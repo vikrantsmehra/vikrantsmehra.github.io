@@ -147,6 +147,14 @@
     .layout{ grid-template-columns: 1fr; gap: 2.5rem; padding: 0.5rem 16px 2.5rem; }
     .intro{ font-size: 19px; }
   }
+  .track{ display:flex; align-items:center; gap: 12px; text-decoration:none !important; }
+  .track img{ width:48px; height:48px; border-radius: 4px; flex:none; display:block; background: var(--line); }
+  .track > span{ display:flex; flex-direction:column; min-width:0; }
+  .track-title{ font-size: 16px; font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  .track:hover .track-title{ color: var(--pen); text-decoration-color: var(--pen); }
+  .track .desc{ margin-top: 0; }
+  .more{ display:inline-block; margin-top: 1rem; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted) !important; text-decoration: none !important; font-weight: 500 !important; }
+  .more:hover{ color: var(--pen) !important; }
 </style>
 </head>
 <body>
@@ -212,6 +220,16 @@
 
     <aside>
       <fieldset>
+        <legend>Listening</legend>
+        <div class="side-list">
+          <a class="track" href="https://open.spotify.com/track/74tLlkN3rgVzRqQJgPfink" target="_blank" rel="noopener"><img src="/play/2643-tracks/covers/74tLlkN3rgVzRqQJgPfink.jpg" alt="" width="48" height="48" loading="lazy"><span><span class="track-title">Money Trees</span><span class="desc">Kendrick Lamar &amp; Jay Rock</span></span></a>
+          <a class="track" href="https://open.spotify.com/track/1qbmS6ep2hbBRaEZFpn7BX" target="_blank" rel="noopener"><img src="/play/2643-tracks/covers_small/1qbmS6ep2hbBRaEZFpn7BX.jpg" alt="" width="48" height="48" loading="lazy"><span><span class="track-title">Man I Need</span><span class="desc">Olivia Dean</span></span></a>
+          <a class="track" href="https://open.spotify.com/track/6dWilYAxP2aJbTTt0UsatK" target="_blank" rel="noopener"><img src="/play/2643-tracks/covers_small/6dWilYAxP2aJbTTt0UsatK.jpg" alt="" width="48" height="48" loading="lazy"><span><span class="track-title">Lover Girl</span><span class="desc">Laufey</span></span></a>
+        </div>
+        <a class="more" href="/play/2643-tracks/">2,643 more →</a>
+      </fieldset>
+
+      <fieldset>
         <legend>Elsewhere</legend>
         <div class="side-list">
           <div class="row"><span class="label">LinkedIn</span><a href="https://www.linkedin.com/in/vikrantsmehra/" target="_blank" rel="noopener">/in/vikrantsmehra</a></div>
@@ -221,24 +239,44 @@
 
       <fieldset>
         <legend>Reading</legend>
-        <div class="side-list">
-          <div class="row"><a href="https://paulgraham.com/taste.html" target="_blank" rel="noopener">Taste — Paul Graham</a><span class="desc">On what taste is, where it comes from and why it matters.</span></div>
-          <div class="row"><a href="https://paulgraham.com/greatwork.html" target="_blank" rel="noopener">How to do Great Work</a><span class="desc">A long and serious essay on finding and doing work that matters.</span></div>
-          <div class="row"><a href="https://sriramk.com/group-chats-rule-the-world" target="_blank" rel="noopener">Group Chats Rule the World</a><span class="desc">Most of the interesting conversations in tech now happen in private group chats.</span></div>
+        <div class="side-list" id="reading-list">
+          <div class="row"><a href="https://sharif.io/anna-alexei" target="_blank" rel="noopener">Always invite Anna</a><span class="desc">A quietly profound piece on who you bring into rooms.</span></div>
+          <div class="row"><a href="https://realcarlallen.substack.com/p/battle-of-the-sexes" target="_blank" rel="noopener">Battle of the Sexes</a><span class="desc">Why the gap at the top of men&#x27;s and women&#x27;s sport is about funnels and exclusion, not just physiology.</span></div>
+          <div class="row"><a href="https://www.ndtv.com/blog/cancer-chose-me-but-i-chose-how-to-die-by-krishna-kapadia-3579380" target="_blank" rel="noopener">Cancer Chose Me But I Chose How To Die</a><span class="desc">One of the most honest pieces of writing you&#x27;ll find.</span></div>
         </div>
       </fieldset>
 
       <fieldset>
         <legend>References I Admire</legend>
-        <div class="side-list">
-          <div class="row"><a href="https://pudding.cool" target="_blank" rel="noopener">The Pudding</a><span class="desc">Visual essays that use data and scrollytelling to explore culture and sport.</span></div>
-          <div class="row"><a href="https://teenage.engineering" target="_blank" rel="noopener">Teenage Engineering</a><span class="desc">Swedish industrial design studio — a website as art object.</span></div>
-          <div class="row"><a href="https://press.stripe.com" target="_blank" rel="noopener">Stripe Press</a><span class="desc">Stripe's publishing arm — books and essays on science, economics and progress.</span></div>
+        <div class="side-list" id="refs-list">
+          <div class="row"><a href="https://x.com/snehasanks/status/1965884942749143239" target="_blank" rel="noopener">Aztec Network Rebrand</a><span class="desc">A deep-tech rebrand where nine years of cryptography work became the brand story.</span></div>
+          <div class="row"><a href="https://www.acquired.fm/episodes/benchmark-capital" target="_blank" rel="noopener">Benchmark Part I</a><span class="desc">Six-hour deep dive on how Benchmark built one of the most distinct VC brands.</span></div>
+          <div class="row"><a href="https://www.bloomberg.com/businessweek/archive" target="_blank" rel="noopener">Bloomberg BusinessWeek Rebrand</a><span class="desc">Landmark editorial redesign — bold typography meets news urgency.</span></div>
         </div>
       </fieldset>
     </aside>
   </div>
 
 </div>
+
+<script>
+  // Reading + References rotate through the Swipe File's Hall of Fame: 3 random picks from each on every visit.
+  (function(){
+    var POOLS = {"reading": [{"t": "Always invite Anna", "u": "https://sharif.io/anna-alexei", "d": "A quietly profound piece on who you bring into rooms.", "f": "Essay"}, {"t": "Battle of the Sexes", "u": "https://realcarlallen.substack.com/p/battle-of-the-sexes", "d": "Why the gap at the top of men's and women's sport is about funnels and exclusion, not just physiology.", "f": "Essay"}, {"t": "Cancer Chose Me But I Chose How To Die", "u": "https://www.ndtv.com/blog/cancer-chose-me-but-i-chose-how-to-die-by-krishna-kapadia-3579380", "d": "One of the most honest pieces of writing you'll find.", "f": "Essay"}, {"t": "Crony Beliefs", "u": "https://meltingasphalt.com/crony-beliefs/", "d": "On beliefs we hold for social reasons rather than epistemic ones.", "f": "Essay"}, {"t": "Don't Marry a Loser", "u": "https://www.harnidh.xyz/p/dont-marry-a-loser", "d": "A sharp, widely-shared personal essay.", "f": "Essay"}, {"t": "Engineering Obsolescence - A Spider Goat's Tale", "u": "https://halfandone.com/engineering-obsolescence-a-spider-goats-tale/", "d": "Genetically engineered goats that make spider silk, and what we owe them once they're no longer needed.", "f": "Essay"}, {"t": "First Round Review", "u": "https://review.firstround.com", "d": "Tactical long-form essays from one of Silicon Valley's best seed funds.", "f": "Newsletter"}, {"t": "Group Chats Rule the World", "u": "https://sriramk.com/group-chats-rule-the-world", "d": "Most of the interesting conversations in tech now happen in private group chats.", "f": "Essay"}, {"t": "Headless Brands", "u": "https://otherinter.net/research/headless-brands/", "d": "On brands without central authors — Bitcoin as the defining case study.", "f": "Essay"}, {"t": "How a Small Shop in Kyoto Connects Mastery with Meditation", "u": "https://bigthink.com/the-outlast-journal/mastery-kaikado/", "d": "On the pursuit of craft mastery through a Japanese tin maker.", "f": "Essay"}, {"t": "How to Enter Side Doors", "u": "https://velvetnoise.substack.com/p/how-to-enter-side-doors", "d": "On finding unconventional paths into industries, rooms and opportunities.", "f": "Essay"}, {"t": "How to do Great Work", "u": "https://paulgraham.com/greatwork.html", "d": "A long and serious essay on finding and doing work that matters.", "f": "Essay"}, {"t": "Jeff Bezos 2017 Letter to Shareholders", "u": "https://www.sec.gov/Archives/edgar/data/1018724/000119312518121161/d456916dex991.htm", "d": "One of the most influential annual letters in business — on Day 1 thinking.", "f": "Essay"}, {"t": "Maker's Knowledge", "u": "https://ia.net/topics/makers-knowledge", "d": "Giambattista Vico's philosophy — on knowing through making.", "f": "Essay"}, {"t": "Post Play Is a Lost Art in the NBA. What Happens to Those Who Still Believe in It", "u": "https://www.si.com/nba/2023/01/18/nba-lost-art-of-post-play-daily-cover", "d": "On craft, patience and a dying skill being kept alive by one genius.", "f": "Essay"}, {"t": "Sea of Crises", "u": "https://grantland.com/features/sumo-wrestling-tokyo-japan-hakuho-yukio-mishima-novelist-seppuku/", "d": "A stunning long-read connecting sumo, Mishima and Japan.", "f": "Essay"}, {"t": "Simplifying the Bull - How Picasso Helps Teach Apple's Style", "u": "https://www.nytimes.com/2014/08/11/technology/-inside-apples-internal-training-program-.html", "d": "Inside Apple's internal training program — using Picasso to teach design simplification.", "f": "Essay"}, {"t": "Startup Investing for Sport and Profit", "u": "https://www.theringer.com/2017/06/08/tech/jeff-jordan-andreessen-horowitz-vc-pickup-basketball-ab4e54928186", "d": "Jeff Jordan on VC through the lens of pickup basketball.", "f": "Essay"}, {"t": "Stripe - The Internet's Most Undervalued Company", "u": "https://www.notboring.co/p/stripe-the-internets-most-undervalued-ec3", "d": "Packy McCormick's deep dive on why Stripe is more than a payments company.", "f": "Essay"}, {"t": "Taste for Makers — Paul Graham", "u": "https://paulgraham.com/taste.html", "d": "On what taste is, where it comes from and why it matters.", "f": "Essay"}, {"t": "The Brand Age", "u": "https://paulgraham.com/brandage.html", "d": "On the relationship between brands, age and trust.", "f": "Essay"}, {"t": "The Curator Economy", "u": "https://www.decentralised.co/p/the-curator-economy", "d": "On the emerging value of taste and curation as a business.", "f": "Essay"}, {"t": "The Premium Mediocre Life of Maya Millennial", "u": "https://www.ribbonfarm.com/2017/08/17/the-premium-mediocre-life-of-maya-millennial/", "d": "On the cultural phenomenon of premium mediocrity.", "f": "Essay"}, {"t": "The Quiet Perfection of Tim Duncan", "u": "https://www.gq.com/story/tim-duncan-retirement-perfection", "d": "A profile on quiet excellence and the perfection of restraint.", "f": "Essay"}, {"t": "The World Needs Less Content, Not More", "u": "https://www.youngmoney.co/p/the-world-needs-less-content-not", "d": "On content discipline — the inverse correlation between volume and attraction.", "f": "Essay"}, {"t": "Who Packs Your Parachute", "u": "https://www.forbes.com/sites/kareanderson/2015/11/18/who-packs-your-parachute/", "d": "On the invisible people who enable your success.", "f": "Essay"}, {"t": "Why Indians Buy in Herds", "u": "https://amanpreetsinghbajaj.substack.com/p/why-indians-buy-in-herds", "d": "In India, trust is transferred, not accumulated — and that changes how you build and sell.", "f": "Newsletter"}], "refs": [{"t": "Aztec Network Rebrand", "u": "https://x.com/snehasanks/status/1965884942749143239", "d": "A deep-tech rebrand where nine years of cryptography work became the brand story.", "f": "Case study"}, {"t": "Benchmark Part I", "u": "https://www.acquired.fm/episodes/benchmark-capital", "d": "Six-hour deep dive on how Benchmark built one of the most distinct VC brands.", "f": "Talk/Video"}, {"t": "Bloomberg BusinessWeek Rebrand", "u": "https://www.bloomberg.com/businessweek/archive", "d": "Landmark editorial redesign — bold typography meets news urgency.", "f": "Case study"}, {"t": "Cabel Sasser at XOXO 2024", "u": "https://www.youtube.com/watch?v=Df_K7pIsfvg&t=1s", "d": "A talk on independent software and what it means to keep making things.", "f": "Talk/Video"}, {"t": "Delhi Metro Jazz", "u": "https://www.delhimetrojazz.com/", "d": "Generative jazz from a simulated Delhi Metro: each line is an instrument, each train a note.", "f": "Site/Portfolio"}, {"t": "Gokul's S.P.A.D.E. Toolkit", "u": "https://coda.io/@gokulrajaram/gokuls-spade-toolkit", "d": "A structured decision-making framework from a senior product leader.", "f": "Tool/Product"}, {"t": "Gossamer Magazine", "u": "https://gossamer.co/collections/magazine", "d": "Cannabis lifestyle magazine with exemplary editorial design.", "f": "Site/Portfolio"}, {"t": "How Superhuman Built an Engine to Find Product Market Fit", "u": "https://review.firstround.com/how-superhuman-built-an-engine-to-find-product-market-fit", "d": "The PMF framework that became a standard reference.", "f": "Case study"}, {"t": "How to Build Real Taste (and Why AI Makes It Matter More)", "u": "https://www.youtube.com/watch?v=RJjl1TwyfWM", "d": "iPod inventor Tony Fadell on cultivating taste and why AI raises the stakes.", "f": "Talk/Video"}, {"t": "Literature Clock", "u": "https://literature-clock.jenevoldsen.com/", "d": "Every minute of the day, a quote from literature that mentions that time.", "f": "Tool/Product"}, {"t": "New York Liberty - Building the Business of Women's Basketball", "u": "https://www.hbs.edu/faculty/Pages/item.aspx?num=67598", "d": "A case study in building a franchise from scratch with intention.", "f": "Case study"}, {"t": "Olivia Dean vs. Ticketmaster - The Full Resale Price Story", "u": "https://theverifiedpost.com/article/olivia-dean-ticketmaster-resale-story", "d": "A case study in fan-first marketing and fighting ticket scalping with creativity.", "f": "Case study"}, {"t": "Parisian Love", "u": "https://www.youtube.com/watch?v=nnsSUqgkDwU", "d": "Google's 2010 Super Bowl ad — a love story told entirely through search queries.", "f": "Campaign/Ad"}, {"t": "Paul Graham — Essays", "u": "http://paulgraham.com/index.html", "d": "The full archive. Return to it often.", "f": "Site/Portfolio"}, {"t": "Polygraph", "u": "https://polygraph.cool/", "d": "Data-driven pop culture writing with outstanding visual design.", "f": "Site/Portfolio"}, {"t": "Rob Denton — Companies Send Caps, We Send Spoons", "u": "https://www.linkedin.com/posts/robjdenton_some-companies-send-caps-we-send-spoons-activity-7445767984222003200-tPCR", "d": "A memorable example of distinctive branded gifting and creative marketing.", "f": "Campaign/Ad"}, {"t": "Slush", "u": "https://slush.org/", "d": "Nordic startup event — outstanding brand, content and community design.", "f": "Site/Portfolio"}, {"t": "Teenage Engineering", "u": "https://teenage.engineering", "d": "Swedish industrial design studio — a website as art object.", "f": "Site/Portfolio"}, {"t": "The Pudding", "u": "https://pudding.cool", "d": "Visual essays that use data and scrollytelling to explore culture and sport.", "f": "Data story"}, {"t": "The Ringer's 2026 NBA Draft Guide", "u": "https://theringer.com/nba-draft/2026/mock-draft", "d": "Skim / Peek / Peruse / Deep Dive: a draft guide you can read at any depth.", "f": "Site/Portfolio"}, {"t": "Typatone", "u": "https://www.typatone.com/", "d": "Type anything and each letter plays a note, so writing turns into music.", "f": "Tool/Product"}, {"t": "XOXO Festival", "u": "https://xoxofest.com", "d": "An annual festival celebrating independent creators making things on the internet.", "f": "Site/Portfolio"}, {"t": "blot.im", "u": "https://blot.im", "d": "A minimal publishing platform that turns a folder of files into a website.", "f": "Tool/Product"}, {"t": "iiiiiiiii.in-links", "u": "https://iiiiiiiii.in/links", "d": "A personal list of links that shaped one person in one way or another.", "f": "Site/Portfolio"}]};
+    function pick(a, n){ a = a.slice(); for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a.slice(0, n); }
+    function fill(id, list){
+      var box = document.getElementById(id); if (!box) return;
+      box.textContent = '';
+      list.forEach(function(r){
+        var row = document.createElement('div'); row.className = 'row';
+        var a = document.createElement('a'); a.href = r.u; a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.t;
+        var d = document.createElement('span'); d.className = 'desc'; d.textContent = r.d;
+        row.appendChild(a); row.appendChild(d); box.appendChild(row);
+      });
+    }
+    fill('reading-list', pick(POOLS.reading, 3));
+    fill('refs-list', pick(POOLS.refs, 3));
+  })();
+</script>
 </body>
 </html>
