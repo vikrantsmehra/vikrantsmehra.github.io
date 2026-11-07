@@ -51,19 +51,24 @@
   }
   .cluster{ width:100%; max-width: 680px; display:flex; flex-direction:column; align-items:center; text-align:center; }
 
-  .eyebrow{
-    font-family: var(--mono); font-weight: 500; font-size: 13.5px;
-    letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
-    margin-bottom: 18px;
-  }
 
   h1{
     font-family: var(--display); font-weight: 800;
     font-size: clamp(36px, 6.4vw, 68px);
     line-height: .98; letter-spacing: -.035em;
     font-variation-settings: "opsz" 96;
-    margin: 0 0 28px; max-width: 15ch; text-wrap: balance;
+    margin: 0 0 18px; max-width: 15ch; text-wrap: balance;
   }
+  .dek{
+    font-family: var(--serif); font-size: clamp(19px, 2.4vw, 23px); line-height: 1.45;
+    color: var(--ink); max-width: 30ch; margin: 0 0 28px; text-wrap: balance;
+  }
+  .dek em{
+    font-style: normal; color: var(--ink);
+    background: linear-gradient(transparent 40%, var(--hi) 40%, var(--hi) 92%, transparent 92%);
+    padding: 0 .08em;
+  }
+
   /* highlighter, not a colour swap — same treatment as the Swipe File masthead */
   h1 em{
     font-style: normal; color: inherit;
@@ -94,8 +99,8 @@
 <div class="page">
   <div class="stage">
     <div class="cluster">
-      <span class="eyebrow">Hi! I'm Vikrant</span>
-      <h1>I build <em>brands and communities</em> from the ground up.</h1>
+      <h1>Hi! I'm Vikrant</h1>
+      <p class="dek">I build <em>brands and communities</em> from the ground up.</p>
       <div class="nav-row">
         <a href="work/">Work</a>
         <a href="play/">Play</a>
