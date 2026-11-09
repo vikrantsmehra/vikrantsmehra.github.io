@@ -122,11 +122,12 @@ ul.traits li { margin-bottom: .55em; }
 
 /* figures */
 figure { margin: 30px auto 38px; }
-.wide > figure { margin-top: var(--sp-6); }
+.wide > figure { margin-top: var(--sp-8); }
 figcaption.head { margin-bottom: 14px; }
 figcaption.head .t { font-family: var(--f-display); font-weight: 600; font-size: 21px; line-height: 1.2; letter-spacing: -.01em; text-wrap: balance; }
 figcaption.head .s { font-family: var(--f-body); font-size: 16px; color: var(--ink-2); line-height: 1.45; margin-top: 4px; }
 .note { font-family: var(--f-mono); font-size: 13.5px; line-height: 1.5; color: var(--muted); margin-top: 10px; }
+p.note { margin-bottom: 20px; }
 .chart { position: relative; width: 100%; }
 .chart svg { display: block; overflow: visible; }
 .chart text { fill: var(--ink-2); font-family: var(--f-mono); font-size: 12px; }
@@ -142,7 +143,6 @@ figcaption.head .s { font-family: var(--f-body); font-size: 16px; color: var(--i
 #tip b { font-weight: 600; display: block; font-family: var(--f-display); font-size: 15px; margin-bottom: 2px; }
 
 /* the Guinea Pigs */
-figure.gps { margin-top: var(--sp-5); }
 .lvl { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; box-shadow: 0 6px 12px -8px rgba(0,0,0,.25); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 12px var(--sp-4); margin-bottom: 14px; }
 .lvl label { font: 600 17px/1.2 var(--f-display); }
 .lvl output { font: 800 30px/1 var(--f-display); letter-spacing: -.02em; min-width: 1.2ch; font-variant-numeric: tabular-nums; }
@@ -172,7 +172,7 @@ figure.gps { margin-top: var(--sp-5); }
 .gp-abil .new { font: 500 10.5px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; background: var(--hi); color: var(--ink); padding: 2px 5px; border-radius: 3px; margin-right: 6px; vertical-align: 1px; }
 
 /* personality dials */
-figure.dials { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--pad-card); margin: 24px 0 10px; }
+figure.dials { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--pad-card); margin: 30px 0 10px; }
 .dial { margin-bottom: var(--sp-4); }
 .dial label { display: flex; justify-content: space-between; font: 600 17px/1.2 var(--f-display); margin-bottom: 6px; }
 .dial output { font: 500 14px var(--f-mono); color: var(--ink-2); }
@@ -285,7 +285,7 @@ ol.beats li.big { background: linear-gradient(90deg, var(--hi), transparent 85%)
 .cast .c.dead { border-top-color: var(--s8); color: var(--s8); }
 .cast .c.dead b::after { content: " ✝"; color: var(--s8); }
 @media (max-width: 560px) { .cast { grid-template-columns: 1fr 1fr; } }
-.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; margin: 8px 0 30px; padding: var(--sp-4) 0; border-block: 1px solid var(--rule); }
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; margin: 26px 0 30px; padding: var(--sp-4) 0; border-block: 1px solid var(--rule); }
 .stat .n { font-family: var(--f-display); font-weight: 800; font-size: 42px; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .stat .l { font-size: 15px; line-height: 1.35; color: var(--ink-2); margin-top: 6px; }
 .good { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 6px 0 28px; }
@@ -293,7 +293,7 @@ ol.beats li.big { background: linear-gradient(90deg, var(--hi), transparent 85%)
 .good b { display: block; font: 600 18px/1.2 var(--f-display); margin-bottom: 8px; }
 .good span { display: block; font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
 @media (max-width: 640px) { .good { grid-template-columns: 1fr; } }
-.closer { font-family: var(--f-display); font-weight: 600; font-size: clamp(22px, 3vw, 28px); line-height: 1.25; letter-spacing: -.01em; margin: 30px 0 10px; text-wrap: balance; }
+.closer { font-family: var(--f-display); font-weight: 600; font-size: clamp(22px, 3vw, 28px); line-height: 1.25; letter-spacing: -.01em; margin: 30px 0 20px; text-wrap: balance; }
 .closer .hand { display: block; font-family: var(--f-hand); color: var(--pen); font-weight: 700; font-size: 1.35em; margin: 4px 0; }
 /* the party on stage during the walkthrough */
 .scene { margin-top: 14px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 12px 12px 10px; }
@@ -408,7 +408,6 @@ ol.beats li.big { background: linear-gradient(90deg, var(--hi), transparent 85%)
 
 <nav class="col backlink"><a href="../">← Play</a></nav>
 <header class="hero col">
-  <div class="kicker">Simulating D&amp;D playtests</div>
   <h1>The Guinea Pigs</h1>
   <p class="dek">A party of four imaginary adventurers who walk into any dungeon you throw at them thousands of times, to help you identify the encounters and traps your real players won't walk away from.</p>
   <p class="dek2">Or, how trying to build a D&amp;D adventure inspired by <em>The Legend of Zelda</em> led me down the rabbit hole of simulation playtesting.</p>
