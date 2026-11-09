@@ -1,0 +1,1101 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>
+  /* set theme before paint to avoid a flash; choice is shared across the whole site */
+  (function () {
+    try {
+      var t = localStorage.getItem("vm-theme") ||
+        ((window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }
+  })();
+</script>
+<title>The Stock Party · Vikrant Mehra</title>
+<meta name="description" content="A D&amp;D playtest simulator that takes a stock party through any dungeon thousands of times, rolling every die, and how it went from one dungeon to any module.">
+<meta name="author" content="Vikrant Mehra">
+<link rel="canonical" href="https://vikrant.space/play/playtest-simulator/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Stock Party">
+<meta property="og:description" content="Four imaginary adventurers who walk into any dungeon you give them, thousands of times.">
+<meta property="og:url" content="https://vikrant.space/play/playtest-simulator/">
+<meta name="twitter:card" content="summary">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=DM+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap">
+<style>
+/* The same system as 2,643 Tracks Later: one 680px reading column, charts break out to 980px. */
+:root {
+  --bg: #fbfbf9; --bg-2: #f1f2f4; --ink: #131419; --ink-2: #474a55; --muted: #636775; --rule: #e1e3e8;
+  --hi: rgba(255, 196, 0, .42); --pen: #c2410c; --dim: #dfe1e6;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s7: #4a3aa7; --s8: #e34948; --other: #b8bbc4;
+  --f-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono: "DM Mono", ui-monospace, Menlo, monospace;
+  --f-hand: "Caveat", "Comic Sans MS", cursive;
+  --col: 680px; --wide: 980px;
+  --r-card: 8px; --r-pill: 999px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px; --pad-card: var(--sp-5);
+  --switch-track: #e1e3e8; --switch-knob: #ffffff; --switch-ic: #c98500; --switch-line: #868996; --switch-focus: #2a78d6;
+  /* character art */
+  --skin-1: #e9b58f; --skin-2: #d49a74; --skin-3: #f0c6a0; --skin-4: #f3d5bd;
+  --steel: #a7afbd; --steel-2: #7f8898; --wood: #8b5e3c; --beard: #8a4f2c; --hair: #e9d9a6; --art-ink: #2a2c33;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #16171c; --bg-2: #1f2128; --ink: #f2f2f4; --ink-2: #c4c6ce; --muted: #8e919d; --rule: #2d3038;
+  --hi: rgba(237, 161, 0, .34); --pen: #ffb38a; --dim: #2c2f37;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s7: #9085e9; --s8: #e66767; --other: #5b5f6b;
+  --switch-track: #2d3038; --switch-knob: #474a55; --switch-ic: #f2f2f4; --switch-line: #6b6e7a;
+  --steel: #8f98a8; --steel-2: #6a7383; --wood: #9a6b47;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #16171c; --bg-2: #1f2128; --ink: #f2f2f4; --ink-2: #c4c6ce; --muted: #8e919d; --rule: #2d3038;
+  --hi: rgba(237, 161, 0, .34); --pen: #ffb38a; --dim: #2c2f37;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s7: #9085e9; --s8: #e66767; --other: #5b5f6b;
+  --switch-track: #2d3038; --switch-knob: #474a55; --switch-ic: #f2f2f4; --switch-line: #6b6e7a;
+  --steel: #8f98a8; --steel-2: #6a7383; --wood: #9a6b47;
+  color-scheme: dark;
+}
+@media (max-width: 560px) { :root { --pad-card: var(--sp-4); } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 19px; line-height: 1.62; padding-inline: 18px; padding-block: 0 80px; -webkit-font-smoothing: antialiased; }
+.col { max-width: var(--col); margin-inline: auto; }
+.wide { max-width: var(--wide); margin-inline: auto; }
+p { margin: 0 0 1.05em; text-wrap: pretty; }
+a { color: inherit; text-decoration-color: var(--muted); text-underline-offset: 3px; }
+.col p a, .col li a { text-decoration-color: currentColor; text-decoration-thickness: 1.5px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--s1); outline-offset: 3px; border-radius: 3px; }
+mark { background: linear-gradient(transparent 38%, var(--hi) 38%, var(--hi) 92%, transparent 92%); color: inherit; padding: 0 .1em; }
+strong { font-weight: 600; }
+.num { font-family: var(--f-mono); font-size: .86em; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+code { font: 500 .8em var(--f-mono); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 1px 5px; white-space: nowrap; }
+
+/* theme switch */
+.corner-switch { position: absolute; top: 20px; right: 16px; z-index: 5; }
+.switch { border: 0; background: none; padding: 0; margin: 0; cursor: pointer; display: inline-flex; line-height: 0; }
+.switch__track { position: relative; display: block; width: 48px; height: 26px; border-radius: 999px; background: var(--switch-track); border: 1px solid var(--switch-line); transition: background .2s ease; }
+.switch__knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--switch-knob); box-shadow: 0 1px 3px rgba(0,0,0,.28); display: flex; align-items: center; justify-content: center; transition: transform .22s cubic-bezier(.4,0,.2,1), background .2s ease; }
+:root[data-theme="dark"] .switch__knob { transform: translateX(22px); }
+.switch__knob svg { width: 12px; height: 12px; display: block; color: var(--switch-ic); }
+.switch__moon { display: none; }
+:root[data-theme="dark"] .switch__sun { display: none; }
+:root[data-theme="dark"] .switch__moon { display: block; }
+.switch:focus-visible .switch__track { outline: 2px solid var(--switch-focus); outline-offset: 2px; }
+@media (hover: none) { .switch { padding: 9px 0; } }
+
+/* hero */
+.backlink { padding-top: var(--sp-5); font-family: var(--f-mono); font-size: 13.5px; letter-spacing: .12em; text-transform: uppercase; }
+.backlink a { color: var(--muted); text-decoration: none; }
+.backlink a:hover, .backlink a:focus-visible { color: var(--ink); }
+header.hero { padding-block: 40px var(--sp-6); border-bottom: 1px solid var(--rule); margin-bottom: var(--sp-7); }
+.kicker { font-family: var(--f-mono); font-size: 13.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(48px, 10vw, 112px); line-height: .9; letter-spacing: -.035em; margin: 0 0 var(--sp-4); text-wrap: balance; font-variation-settings: "opsz" 96; }
+.dek { font-size: 22px; line-height: 1.45; color: var(--ink); max-width: 36em; margin-bottom: 0; }
+.dek2 { font-size: 17px; line-height: 1.5; color: var(--ink-2); max-width: 36em; margin: var(--sp-3) 0 0; }
+.byline { font-family: var(--f-mono); font-size: 14px; color: var(--muted); margin-top: 22px; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+/* sections */
+section { padding-block: 40px 8px; }
+h2 { font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 5.4vw, 52px); line-height: 1; letter-spacing: -.025em; margin: 28px 0 18px; text-wrap: balance; }
+h3 { font-family: var(--f-display); font-weight: 600; font-size: 22px; letter-spacing: -.01em; margin: 36px 0 var(--sp-3); text-wrap: balance; }
+.sep { border: 0; border-top: 1px solid var(--rule); margin: 48px auto; max-width: var(--col); }
+.aside { color: var(--ink-2); }
+ul.traits { padding-left: 1.2em; margin: 0 0 1.05em; }
+ul.traits li { margin-bottom: .55em; }
+
+/* hover definitions */
+.term { text-decoration: underline dotted var(--muted); text-decoration-thickness: 1.5px; text-underline-offset: 3px; cursor: help; border-radius: 2px; }
+.term:hover, .term.open { text-decoration-color: var(--ink); }
+.term:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+/* the chat with Claude */
+.chat { display: grid; gap: var(--sp-4); margin: 26px 0 30px; font-size: 17px; line-height: 1.55; }
+.turn .who { font: 500 12.5px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; display: flex; align-items: center; gap: 7px; }
+.turn .who::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.turn.ai .who::before { background: var(--pen); }
+.turn .msg { border: 1px solid var(--rule); border-radius: var(--r-card); padding: 14px 18px; }
+.turn.ai .msg { background: var(--bg-2); }
+.turn .msg p { margin: 0 0 .7em; }
+.turn .msg p:last-child { margin: 0; }
+.turn .msg ul { padding-left: 1.15em; margin: 0 0 .7em; }
+.turn .msg li { margin-bottom: .35em; }
+.turn .msg .small { font-size: 15.5px; color: var(--ink-2); }
+
+/* figures */
+figure { margin: 30px auto 38px; }
+.wide > figure { margin-top: var(--sp-6); }
+figcaption.head { margin-bottom: 14px; }
+figcaption.head .t { font-family: var(--f-display); font-weight: 600; font-size: 21px; line-height: 1.2; letter-spacing: -.01em; text-wrap: balance; }
+figcaption.head .s { font-family: var(--f-body); font-size: 16px; color: var(--ink-2); line-height: 1.45; margin-top: 4px; }
+.note { font-family: var(--f-mono); font-size: 13.5px; line-height: 1.5; color: var(--muted); margin-top: 10px; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; overflow: visible; }
+.chart text { fill: var(--ink-2); font-family: var(--f-mono); font-size: 12px; }
+.chart .lab { fill: var(--ink); font-size: 12.5px; }
+.chart .gridline { stroke: var(--rule); shape-rendering: crispEdges; }
+.legend { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: 14px; }
+.legend span { font: 500 13.5px/1 var(--f-mono); color: var(--ink-2); display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px 4px 0; }
+.legend .sw { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+
+/* tooltip, shared by the charts and the hover definitions */
+#tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--bg); font: 13px/1.45 var(--f-mono); padding: 9px 11px; border-radius: 6px; max-width: 300px; opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s; }
+#tip.on { opacity: 1; transform: none; }
+#tip b { font-weight: 600; display: block; font-family: var(--f-display); font-size: 15px; margin-bottom: 2px; }
+
+/* the Guinea Pigs */
+figure.gps { margin-top: var(--sp-5); }
+.lvl { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; box-shadow: 0 6px 12px -8px rgba(0,0,0,.25); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 12px var(--sp-4); margin-bottom: 14px; }
+.lvl label { font: 600 17px/1.2 var(--f-display); }
+.lvl output { font: 800 30px/1 var(--f-display); letter-spacing: -.02em; min-width: 1.2ch; font-variant-numeric: tabular-nums; }
+.lvl .track { flex: 1 1 220px; display: grid; }
+.lvl input { width: 100%; accent-color: var(--pen); min-height: 28px; margin: 0; }
+.lvl .ticks { display: flex; justify-content: space-between; font: 12px/1 var(--f-mono); color: var(--muted); padding-inline: 6px; }
+.gp-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 920px) { .gp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .gp-grid { grid-template-columns: 1fr; } }
+/* each card spans five rows of the grid and shares them (subgrid), so names, roles and stats line up across cards */
+.gp { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--sp-4); display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 0; align-content: start; }
+@supports not (grid-template-rows: subgrid) { .gp { display: flex; flex-direction: column; } .gp-role { min-height: 2.8em; } }
+.gp-art { display: block; width: 100%; max-width: 156px; aspect-ratio: 1; margin: 0 auto 10px; }
+.gp-art [data-from] { transition: opacity .3s ease, transform .3s ease; transform-box: fill-box; transform-origin: center; }
+.gp-art .off { opacity: 0; transform: scale(.6); }
+.gp-name { font: 800 25px/1 var(--f-display); letter-spacing: -.02em; }
+.gp-role { font: 13px/1.4 var(--f-mono); color: var(--muted); margin: 5px 0 12px; }
+.gp-stats { align-self: start; display: flex; flex-wrap: wrap; gap: 6px 18px; border-block: 1px solid var(--rule); padding: 9px 0; margin-bottom: 12px; font: 12.5px/1.2 var(--f-mono); color: var(--ink-2); }
+.gp-stats b { display: block; font: 800 24px/1 var(--f-display); letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+.pips { display: flex; gap: 6px; align-items: center; height: 24px; margin-bottom: 2px; }
+.pips span { display: inline-flex; gap: 2px; }
+.pips i { width: 7px; height: 7px; border-radius: 50%; background: var(--acc); }
+.pips span + span { padding-left: 6px; border-left: 1px solid var(--rule); }
+.gp-blurb { font-size: 15.5px; line-height: 1.45; margin: 0 0 12px; }
+.gp-abil { list-style: none; margin: 0; padding: 0; font-size: 14.5px; line-height: 1.4; }
+.gp-abil li { padding: 6px 0; border-top: 1px solid var(--rule); }
+.gp-abil .new { font: 500 10.5px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; background: var(--hi); color: var(--ink); padding: 2px 5px; border-radius: 3px; margin-right: 6px; vertical-align: 1px; }
+
+/* personality dials */
+figure.dials { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--pad-card); margin: 24px 0 10px; }
+.dial { margin-bottom: var(--sp-4); }
+.dial label { display: flex; justify-content: space-between; font: 600 17px/1.2 var(--f-display); margin-bottom: 6px; }
+.dial output { font: 500 14px var(--f-mono); color: var(--ink-2); }
+.dial input { width: 100%; accent-color: var(--pen); min-height: 28px; margin: 0; }
+.viz-wrap { border-top: 1px solid var(--rule); padding-top: var(--sp-4); margin-bottom: var(--sp-4); }
+.party-size { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 var(--sp-5); font: 13px/1 var(--f-mono); color: var(--muted); }
+.party-size span { margin-right: 4px; }
+.party-size button { font: 500 13px/1 var(--f-mono); min-height: 36px; padding: 0 14px; border-radius: var(--r-pill); border: 1px solid var(--rule); background: var(--bg); color: var(--ink-2); cursor: pointer; }
+.party-size button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.viz { margin-bottom: var(--sp-5); }
+.viz-k { font: 600 17px/1.2 var(--f-display); margin-bottom: 12px; }
+.pool { position: relative; display: flex; height: 26px; }
+.pool .seg { height: 100%; background: var(--acc); border-right: 2px solid var(--bg-2); transition: flex-basis .25s ease; }
+.pool .seg:first-child { border-radius: 6px 0 0 6px; }
+.pool .seg:last-of-type { border-radius: 0 6px 6px 0; border-right: 0; }
+.pool .spare { position: absolute; top: 0; bottom: 0; right: 0; border-radius: 0 6px 6px 0; background: repeating-linear-gradient(135deg, var(--bg-2) 0 4px, transparent 4px 8px); opacity: .8; transition: width .2s ease; }
+.pool .mark { position: absolute; top: -7px; bottom: -7px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); transition: left .2s ease; }
+.pool-names { display: flex; justify-content: space-between; margin-top: 6px; font: 11.5px/1.2 var(--f-mono); color: var(--muted); }
+.pool-names span { overflow: hidden; white-space: nowrap; text-overflow: clip; padding-right: 4px; }
+.party-row { display: flex; gap: 8px; }
+.pc-fig { flex: 1 1 0; min-width: 0; text-align: center; font: 11.5px/1.25 var(--f-mono); color: var(--ink-2); }
+.pc-fig svg { display: block; width: 30px; height: 40px; margin: 0 auto 4px; transition: transform .25s ease, opacity .25s ease; }
+.pc-fig.down { color: var(--s8); }
+.pc-fig.down svg { transform: rotate(90deg) translateX(8px); opacity: .45; }
+@media (max-width: 560px) { .party-row { gap: 4px; } .pc-fig { font: 500 12px/1.25 var(--f-display); } }
+.viz-cap { font-size: 16px; line-height: 1.4; color: var(--ink-2); margin: 12px 0 0; }
+.viz-cap b { color: var(--ink); font-weight: 600; }
+.dial-out { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--sp-4); border-top: 1px solid var(--rule); padding-top: var(--sp-4); }
+.dial-out .v { display: block; font-family: var(--f-display); font-weight: 800; font-size: 36px; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.dial-out .k { display: block; font-size: 15px; line-height: 1.35; color: var(--ink-2); margin-top: 5px; }
+
+/* code, callouts, the module's own text */
+pre.code { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--sp-3) var(--sp-4); overflow-x: auto; font: 13px/1.6 var(--f-mono); color: var(--ink-2); margin: 0 0 1.4em; white-space: pre; }
+pre.code .cm { color: var(--muted); }
+pre.code b { color: var(--ink); font-weight: 500; }
+details.callout { background: var(--bg-2); border: 1px solid var(--muted); border-left: 4px solid var(--ink-2); border-radius: var(--r-card); padding: var(--sp-3) var(--pad-card); margin: 0 0 1.4em; font-size: 17px; }
+details.callout summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 19px; min-height: 44px; display: flex; align-items: center; gap: var(--sp-2); list-style: none; }
+details.callout summary::-webkit-details-marker { display: none; }
+details.callout summary::before { content: "▸"; color: var(--ink-2); transition: transform .15s; }
+details.callout[open] summary::before { transform: rotate(90deg); }
+details.callout ul { padding-left: 1.2em; margin: var(--sp-2) 0 .6em; }
+details.callout li { margin-bottom: .45em; }
+details.callout h4 { font: 800 21px/1.15 var(--f-display); letter-spacing: -.015em; margin: var(--sp-4) 0 var(--sp-3); }
+details.callout .lead { color: var(--ink-2); margin-top: var(--sp-2); }
+.readaloud { background: var(--bg); border: 1px solid var(--rule); border-left: 4px solid var(--s4); border-radius: 6px; padding: 12px 16px; margin: 0 0 1em; font-style: italic; }
+.readaloud .lbl { display: block; font: 500 11.5px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; font-style: normal; color: var(--muted); margin-bottom: 8px; }
+.readaloud p { margin: 0 0 .6em; }
+.readaloud p:last-child { margin: 0; }
+.credit { font: 13px/1.5 var(--f-mono); color: var(--muted); }
+.credit em { font-style: italic; }
+.report { background: var(--bg); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--pad-card); font-size: 16.5px; line-height: 1.5; margin: 6px 0 30px; }
+.report .tag { display: inline-block; font: 500 11.5px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 4px 7px; border-radius: 3px; margin-right: 8px; vertical-align: 2px; background: var(--bg-2); color: var(--ink-2); border: 1px solid var(--rule); }
+.report .tag.med { background: var(--hi); color: var(--ink); border-color: transparent; }
+.report p { margin: 0 0 .8em; }
+.report p:last-child { margin: 0; }
+.report-k { font: 500 12.5px/1.3 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--sp-3); }
+.pull { font-family: var(--f-display); font-weight: 600; font-size: clamp(26px, 3.6vw, 34px); line-height: 1.15; letter-spacing: -.015em; margin: 36px 0; text-wrap: balance; }
+.pull .hand { font-family: var(--f-hand); color: var(--pen); font-weight: 700; font-size: 1.15em; }
+a.linkcard { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font: 500 14px/1.3 var(--f-mono); color: var(--bg); background: var(--ink); text-decoration: none; padding: 0 var(--sp-4); border-radius: var(--r-pill); }
+a.linkcard:hover, a.linkcard:focus-visible { opacity: .88; }
+footer { font-family: var(--f-mono); font-size: 13px; color: var(--muted); margin-top: 40px; }
+
+/* the replay: one fight, roll by roll */
+.log { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--pad-card); margin: 6px 0 30px; }
+.log-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; margin-bottom: var(--sp-3); }
+.log-title { font-family: var(--f-display); font-weight: 800; font-size: 26px; line-height: 1.05; letter-spacing: -.02em; }
+.log-meta { font: 13.5px/1.3 var(--f-mono); color: var(--muted); }
+ol.beats { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+ol.beats li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 16.5px; line-height: 1.45; }
+ol.beats .rd { font: 500 12.5px/1.6 var(--f-mono); color: var(--muted); }
+ol.beats .roll { font: 500 13.5px var(--f-mono); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
+ol.beats .crit { border-color: var(--s8); color: var(--s8); }
+ol.beats li.big { background: linear-gradient(90deg, var(--hi), transparent 85%); }
+
+/* scrollytelling */
+.scrolly { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; max-width: var(--wide); margin: 20px auto; }
+.scrolly .stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 6vh); height: fit-content; padding-block: 10px; }
+.scrolly .steps { padding-block: 4vh 30vh; }
+.stage-room { font-family: var(--f-display); font-weight: 800; font-size: 26px; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 10px; }
+.step { margin-bottom: 52vh; padding: var(--pad-card); background: var(--bg-2); border-radius: var(--r-card); border: 1px solid var(--rule); font-size: 17px; line-height: 1.55; transition: border-color .2s; }
+.step:last-child { margin-bottom: 0; }
+.step.on { border-color: var(--ink-2); }
+.step h3 { font-size: 20px; margin: 0 0 6px; }
+.step p { margin: 0 0 .6em; }
+.step p:last-child { margin-bottom: 0; }
+.logline { font: 13px/1.5 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; }
+.hp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.hp .h { font: 12.5px/1.3 var(--f-mono); color: var(--ink-2); }
+.hp .h b { display: block; font: 600 14px/1.2 var(--f-display); color: var(--ink); margin-bottom: 4px; }
+.hp .track { display: block; height: 7px; border-radius: 4px; background: var(--dim); overflow: hidden; margin-bottom: 4px; }
+.hp .fill { display: block; height: 100%; background: var(--s3); transition: width .3s ease; }
+.hp .h.low .fill { background: var(--s4); }
+.hp .h.dead, .hp .h.dead b { color: var(--s8); }
+.chart text.cur { fill: var(--ink); font-weight: 500; }
+@media (max-width: 860px) {
+  .scrolly { grid-template-columns: 1fr; gap: 0; }
+  .scrolly .stage { top: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 3; padding-block: 8px; box-shadow: 0 1px 0 var(--rule); }
+  .scrolly .steps { position: relative; z-index: 1; padding-block: var(--sp-4) var(--sp-5); }
+  .step { margin-bottom: 40vh; }
+  .stage-room { font-size: 21px; margin-bottom: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media (max-width: 560px) { body { font-size: 18px; } .dek { font-size: 19px; } header.hero { padding-top: 36px; margin-bottom: var(--sp-6); } section { padding-top: var(--sp-6); } .chat { font-size: 16.5px; } }
+/* the rest of the story */
+.hp .h b .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.solo { display: block; width: fit-content; font: 500 11px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); background: var(--hi); padding: 4px 7px; border-radius: 3px; margin-bottom: 7px; }
+.cast { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 0 0 var(--sp-4); }
+.cast .c { background: var(--bg); border: 1px solid var(--rule); border-top: 3px solid var(--acc); border-radius: 6px; padding: 7px 10px; font: 12.5px/1.3 var(--f-mono); color: var(--ink-2); }
+.cast .c b { display: block; font: 600 15px/1.2 var(--f-display); color: var(--ink); }
+.cast .c.dead { border-top-color: var(--s8); color: var(--s8); }
+.cast .c.dead b::after { content: " ✝"; color: var(--s8); }
+@media (max-width: 560px) { .cast { grid-template-columns: 1fr 1fr; } }
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; margin: 8px 0 30px; padding: var(--sp-4) 0; border-block: 1px solid var(--rule); }
+.stat .n { font-family: var(--f-display); font-weight: 800; font-size: 42px; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 15px; line-height: 1.35; color: var(--ink-2); margin-top: 6px; }
+.good { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 6px 0 28px; }
+.good > div { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: var(--sp-4); }
+.good b { display: block; font: 600 18px/1.2 var(--f-display); margin-bottom: 8px; }
+.good span { display: block; font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
+@media (max-width: 640px) { .good { grid-template-columns: 1fr; } }
+.closer { font-family: var(--f-display); font-weight: 600; font-size: clamp(22px, 3vw, 28px); line-height: 1.25; letter-spacing: -.01em; margin: 30px 0 10px; text-wrap: balance; }
+.closer .hand { display: block; font-family: var(--f-hand); color: var(--pen); font-weight: 700; font-size: 1.35em; margin: 4px 0; }
+/* the party on stage during the walkthrough */
+.scene { margin-top: 14px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 12px 12px 10px; }
+.foes { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; margin-bottom: 10px; font: 12px/1 var(--f-mono); }
+.foes span { padding: 6px 9px; border-radius: var(--r-pill); background: var(--bg); border: 1px solid var(--rule); color: var(--ink-2); }
+.foes .gone { text-decoration: line-through; color: var(--muted); }
+.foes .none { border-style: dashed; color: var(--muted); }
+.foes .ally { border-color: var(--s3); color: var(--ink); }
+.actors { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.actor { text-align: center; border-radius: 6px; padding: 6px 2px 4px; transition: background .25s; }
+.actor.solo { background: var(--hi); }
+.actor .fig { position: relative; width: min(112px, 100%); aspect-ratio: 1; height: auto; margin: 0 auto 4px; transition: opacity .3s, filter .3s; }
+.actor .fig svg { display: block; width: 100%; height: 100%; }
+.actor b { display: block; font: 600 14px/1.2 var(--f-display); }
+.actor .track { display: block; height: 6px; border-radius: 3px; background: var(--dim); overflow: hidden; margin: 5px 6px 3px; }
+.actor .fill { display: block; height: 100%; background: var(--s3); transition: width .3s ease; }
+.actor.low .fill { background: var(--s4); }
+.actor .hpn { font: 11.5px/1.2 var(--f-mono); color: var(--ink-2); }
+.actor .say { font: 12px/1.3 var(--f-mono); color: var(--ink); margin-top: 5px; min-height: 2.6em; }
+.actor.dead .fig { filter: grayscale(1); opacity: .3; }
+.actor.dead b, .actor.dead .hpn, .actor.dead .say { color: var(--s8); }
+@keyframes a-lunge { 0%, 55%, 100% { transform: none; } 28% { transform: translateX(10px) rotate(5deg); } }
+@keyframes a-glow { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 9px var(--acc)); } }
+@keyframes a-sneak { 0%, 100% { transform: translateY(6px) scaleY(.9); } 50% { transform: translate(5px, 6px) scaleY(.9); } }
+@keyframes a-shake { 0%, 100% { transform: none; } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+@keyframes a-bob { 0%, 100% { transform: none; } 50% { transform: translateY(-6px); } }
+@keyframes a-wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
+@keyframes a-dodge { 0%, 100% { transform: none; } 35% { transform: translate(-12px, -5px); } }
+@keyframes a-rise { 0% { transform: translateY(10px); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(-16px); opacity: 0; } }
+.actor.attack .fig { animation: a-lunge 1.4s ease-in-out infinite; }
+.actor.spell .fig { animation: a-glow 1.6s ease-in-out infinite; }
+.actor.sneak .fig { animation: a-sneak 2.2s ease-in-out infinite; opacity: .75; }
+.actor.hit .fig { animation: a-shake .5s ease-in-out 4; }
+.actor.act .fig, .actor.walk .fig { animation: a-bob 1.3s ease-in-out infinite; }
+.actor.fumble .fig { animation: a-wobble 1s ease-in-out infinite; }
+.actor.dodge .fig { animation: a-dodge 1.4s ease-in-out infinite; }
+.actor.sleep .fig { opacity: .8; }
+.actor.sleep .fig::after, .actor.heal .fig::after { position: absolute; top: -2px; right: 2px; animation: a-rise 1.8s ease-in-out infinite; }
+.actor.sleep .fig::after { content: "z z"; font: 700 17px/1 var(--f-hand); color: var(--muted); }
+.actor.heal .fig::after { content: "+"; font: 800 24px/1 var(--f-display); color: var(--s3); }
+@media (max-width: 860px) {
+  .scene { margin-top: 6px; padding: 6px 6px 4px; }
+  .foes { min-height: 0; margin-bottom: 4px; font-size: 11px; }
+  .foes span { padding: 4px 7px; }
+  .actor { padding: 2px 0; }
+  .actor .fig { width: 40px; margin-bottom: 2px; }
+  .actor b { font-size: 12.5px; }
+  .actor .track { margin: 3px 4px 2px; }
+  .actor .hpn { display: none; }
+  .actor .say { font-size: 10.5px; min-height: 0; margin-top: 2px; }
+}
+/* a real-table aside, as its own card right after a step */
+.step:has(+ .step-note) { margin-bottom: 12px; }
+.step-note { margin-bottom: 52vh; padding: var(--pad-card); background: var(--hi); border-radius: var(--r-card); font-size: 17px; line-height: 1.55; color: var(--ink); }
+.step-note p { margin: 0; }
+.step-note h3 { font-size: 20px; margin: 0 0 6px; }
+@media (max-width: 860px) { .step-note { margin-bottom: 40vh; } }
+</style>
+</head><body>
+<div class="corner-switch"><button id="theme-switch" class="switch" type="button" role="switch" aria-checked="false" aria-label="Dark theme" title="Toggle light / dark">
+  <span class="switch__track"><span class="switch__knob">
+    <svg class="switch__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <svg class="switch__moon" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </span></span>
+</button></div>
+<div id="tip" role="tooltip"></div>
+
+<!-- Hover definitions. Each .term points here with aria-describedby; the tooltip copies the text on hover, tap or focus. -->
+<div id="glossary" hidden>
+  <span id="g-5e" data-t="5E">The fifth edition of Dungeons &amp; Dragons, the rules this simulator plays by.</span>
+  <span id="g-srd" data-t="SRD (System Reference Document)">The free, openly licensed part of the 5E rules, monsters included.</span>
+  <span id="g-oneshot" data-t="One-shot">An adventure that starts and finishes in a single session.</span>
+  <span id="g-pc" data-t="PC">A player character, one of the heroes the players control. The DM runs everything else.</span>
+  <span id="g-ability" data-t="Ability scores">Six numbers (Strength, Dexterity, Constitution, Intelligence, Wisdom and Charisma) for what a character is naturally good at. The standard set gives everyone the same six numbers, arranged to suit their class.</span>
+  <span id="g-class" data-t="Class">A character's job, like fighter, cleric, rogue or wizard. It decides what they can do in a fight.</span>
+  <span id="g-level" data-t="Level">How experienced a character is, from 1 to 20. Each level adds hit points and new abilities.</span>
+  <span id="g-hp" data-t="HP (hit points)">How much damage a character can take. At 0 they fall unconscious and start making death saves.</span>
+  <span id="g-ac" data-t="AC (armour class)">How hard a character is to hit. An attack needs a d20 roll plus its bonus to match or beat it.</span>
+  <span id="g-dc" data-t="DC (difficulty class)">The number a check or saving throw has to meet.</span>
+  <span id="g-slots" data-t="Spell slots">A caster's daily budget of spells. Each spell beyond the simplest ones spends a slot, and slots come back after a long rest.</span>
+  <span id="g-shortrest" data-t="Short rest">An hour's breather that heals a little and brings some abilities back.</span>
+  <span id="g-deathsave" data-t="Death saves">Rolls a downed character makes each turn. Three successes and they're stable; three failures and they die. A natural 20 puts them back on their feet.</span>
+    <span id="g-sp-healing-word" data-t="Healing word · 1st-level spell">A quick word from up to 60 feet away that heals an ally a little. It's fast enough to get a downed friend back on their feet without stopping to fight.</span>
+  <span id="g-sp-cure-wounds" data-t="Cure wounds · 1st-level spell">A touch that heals an ally. Slower than healing word, but it heals more.</span>
+  <span id="g-sp-toll-the-dead" data-t="Toll the dead · cantrip">The sound of a dolorous bell. The target makes a Wisdom save or takes necrotic damage, more if it's already hurt. A cantrip costs no spell slot, so it can be cast every turn.</span>
+  <span id="g-sp-bless" data-t="Bless · 1st-level spell">Up to three allies add a d4 to their attack rolls and saving throws for a minute, as long as the caster keeps concentrating.</span>
+  <span id="g-sp-magic-missile" data-t="Magic missile · 1st-level spell">Three glowing darts that never miss, each dealing a little force damage.</span>
+  <span id="g-sp-sleep" data-t="Sleep · 1st-level spell">Puts creatures to sleep, weakest first, until the spell's pool of hit points runs out. Devastating against a room of goblins.</span>
+  <span id="g-sp-burning-hands" data-t="Burning hands · 1st-level spell">A cone of flame that fans out from the caster's fingertips. Everything in it makes a Dexterity save or takes fire damage.</span>
+  <span id="g-sp-shield" data-t="Shield · 1st-level spell">A reaction: an invisible barrier gives +5 to AC until the caster's next turn, often turning a hit into a miss.</span>
+  <span id="g-sp-aid" data-t="Aid · 2nd-level spell">Up to three allies gain extra hit points, both their maximum and current, for eight hours.</span>
+  <span id="g-sp-spiritual-weapon" data-t="Spiritual weapon · 2nd-level spell">A floating spectral weapon that attacks every turn for a minute, without the caster having to concentrate on it.</span>
+  <span id="g-sp-hold-person" data-t="Hold person · 2nd-level spell">A humanoid makes a Wisdom save or is paralysed, and every hit against it becomes a critical.</span>
+  <span id="g-sp-spirit-guardians" data-t="Spirit guardians · 3rd-level spell">Spirits circle the caster for ten minutes. Enemies who come close are slowed and take radiant damage each turn.</span>
+  <span id="g-sp-revivify" data-t="Revivify · 3rd-level spell">Brings back a creature that died within the last minute, with 1 hit point.</span>
+  <span id="g-sp-mass-healing-word" data-t="Mass healing word · 3rd-level spell">Healing word for up to six allies at once.</span>
+  <span id="g-sp-scorching-ray" data-t="Scorching ray · 2nd-level spell">Three rays of fire, each its own attack.</span>
+  <span id="g-sp-shatter" data-t="Shatter · 2nd-level spell">A painful ringing burst of sound. Everything nearby makes a Constitution save or takes thunder damage.</span>
+  <span id="g-sp-web" data-t="Web · 2nd-level spell">Thick, sticky webs fill an area. Anything caught in them can be stuck fast until it breaks free.</span>
+  <span id="g-sp-fireball" data-t="Fireball · 3rd-level spell">A bead of flame that explodes in a 20-foot radius. Everything in it makes a Dexterity save or takes heavy fire damage.</span>
+  <span id="g-sp-counterspell" data-t="Counterspell · 3rd-level spell">A reaction that interrupts another creature's spell as it's being cast.</span>
+  <span id="g-sp-hypnotic-pattern" data-t="Hypnotic pattern · 3rd-level spell">A twisting pattern of colours. Creatures that see it make a Wisdom save or stand transfixed, unable to act.</span>
+    <span id="g-ft-second-wind" data-t="Second Wind · fighter feature">Once per short rest, the fighter catches their breath mid-fight and heals a little, without spending their turn's action.</span>
+  <span id="g-ft-action-surge" data-t="Action Surge · fighter feature">Once per short rest, the fighter pushes past their limits and takes a whole extra action on their turn. The simulator saves it for the big fights.</span>
+  <span id="g-ft-extra-attack" data-t="Extra Attack · fighter feature">From 5th level, the fighter swings twice whenever they attack.</span>
+  <span id="g-ft-channel-divinity" data-t="Channel Divinity · cleric feature">A burst of divine power, once per short rest. A Life cleric can use it to heal several badly wounded allies at once, or to make nearby undead flee.</span>
+  <span id="g-ft-sneak-attack" data-t="Sneak Attack · rogue feature">Once a turn, a hit with a finesse or ranged weapon deals extra damage. In the rules, it needs advantage or an ally standing next to the target. The simulator skips that check, since it has no battle map to place anyone on.</span>
+  <span id="g-ft-uncanny-dodge" data-t="Uncanny Dodge · rogue feature">A reaction: when an attacker the rogue can see hits them, the rogue halves the damage.</span>
+  <span id="g-ft-arcane-recovery" data-t="Arcane Recovery · wizard feature">Once a day, after a short rest, a wizard can recover some spent spell slots. The simulator plays it too: after a short rest, Zirael gets a spent slot back.</span>
+  <span id="g-nat20" data-t="Natural 20">A 20 on the die itself, before any bonus. On an attack it's a critical hit, which doubles the damage dice.</span>
+</div>
+
+<nav class="col backlink"><a href="../">← Play</a></nav>
+<header class="hero col">
+  <div class="kicker">Simulating D&amp;D playtests</div>
+  <h1>The Guinea Pigs</h1>
+  <p class="dek">A party of four imaginary adventurers who walk into any dungeon you throw at them thousands of times, to help you identify the encounters and traps your real players won't walk away from.</p>
+  <p class="dek2">Or, how trying to build a D&amp;D adventure inspired by <em>The Legend of Zelda</em> led me down the rabbit hole of simulation playtesting.</p>
+  <div class="byline"><span>~11 min read</span><a href="https://github.com/vikrantsmehra/dnd-playtest-simulator" target="_blank" rel="noopener">Code on GitHub ↗</a></div>
+</header>
+
+<section>
+<div class="col">
+<h2>The perils of homebrewing</h2>
+<p>I'm quite fond of building homebrew adventures for the D&amp;D games I run, especially when they draw cues from my favourite media. Heck, the entirety of the world of my home campaign builds itself as it goes, loosely connected by <span class="term" tabindex="0" aria-describedby="g-oneshot">one-shots</span>, character-driven arcs and pop-culture references.</p>
+<p>However, the risk of writing your own adventures from scratch is that playtesting isn't ... really a thing. At least, not for me. Most of my sessions are built on a fairly loosey-goosey understanding of D&amp;D <span class="term" tabindex="0" aria-describedby="g-5e">5E</span>'s systems, held together by panicked improv and a sense of "Welp, if they die, they die." So I often find myself realizing mid-session that oops, the boss is going to absolutely <em>crush</em> the party if I run it purely as written. It's even worse when you realize no one opened what you thought was a plainly obvious Secret Door as you're packing your dice up.</p>
+<p class="aside"><em>(If any of my players read this, shush, no you didn't. Go to someone else's corner of the internet and I'll see you this weekend.)</em></p>
+<p>With all of this preamble established, this story begins one fine October evening. I <strong>love</strong> the atmosphere of the dungeons in the <em>Legend of Zelda: Twilight Princess</em>, and I was about halfway through my attempt to translate one of them, Arbiter's Grounds, into an adventure.</p>
+<p>The adventure asked a group of adventurers to search a ruined desert fortress for proof that dragons and their fire goddess were there before an ancient empire that turned it into a prison. Inside, they must destroy the ghosts of four judges, each of whom frees a sacred flame they carry in a lamp. That opens the way to a cursed executioner's sword in the depths, and then to the reanimated skeleton of a dragon in an arena above.</p>
+<p>I was putting my finishing touches on the final boss battle with said reanimated dragon skeleton, when it occurred to me that the gauntlet of enemies leading up to the fight might be softening up the party a <em>bit</em> too much. And so I did what anyone with a paid Claude subscription would do, and asked it for its opinion, using my party's character sheets as a reference:</p>
+
+<div class="chat" aria-label="Conversation with Claude">
+  <div class="turn me"><div class="who">Vikrant</div><div class="msg"><p>You have to simulate a playthrough of Arbiter's Grounds. Choose three parties, of 4 <span class="term" tabindex="0" aria-describedby="g-pc">PCs</span>, 5 PCs and 6 PCs respectively in order to successfully complete the dungeon. Pick your characters and then tell me the results.</p></div></div>
+  <div class="turn ai"><div class="who">Claude</div><div class="msg">
+    <p>All three parties finished the dungeon, and only one character died.</p>
+    <ul>
+      <li><strong>The 4-person party</strong> finished with no deaths. Their paladin destroyed the cursed sword in two rounds, and they beat the dragon skeleton in three.</li>
+      <li><strong>The 5-person party</strong> ran into nine patrols, when about six were expected, and the attrition wore them down. They still won, but the dragon's breath killed their bard outright.</li>
+      <li><strong>The 6-person party</strong> also finished with no deaths, despite arriving a day late and on their last water.</li>
+    </ul>
+    <p class="small">Dice were rolled for travel, patrols and the decisive moments, and the rest was estimated from average damage. Treat these results as a stress test, not a full play-by-play.</p>
+    <p>What this says about your adventure: the cursed sword is too easy for a prepared party, while the dragon's breath decides the final fight. It can drop a level 4–5 spellcaster in one go, so the battle ends up either lethal or trivial.</p>
+  </div></div>
+</div>
+
+<p>I'd intentionally built this dungeon to be a battle of attrition, so seeing that these simulated adventurers had run roughshod through the dungeon made me suspicious.</p>
+
+<div class="chat" aria-label="Conversation with Claude, continued">
+  <div class="turn me"><div class="who">Vikrant</div><div class="msg"><p>How thorough was this simulation?</p></div></div>
+  <div class="turn ai"><div class="who">Claude</div><div class="msg"><p>Less thorough than my write-up made it sound. Some of it was solid, but a lot of the combat was me deciding outcomes, not dice ... Treat the fight-by-fight story as an illustration, not data.</p></div></div>
+</div>
+
+<p>Wow, okay thanks Claude. It was clear we needed a more comprehensive approach.</p>
+<p>97,500 dungeon crawls later, that tidy little story did not survive. But then again, neither did the adventurers. Parties of the same sizes, built from my players' characters, didn't all stroll out with one casualty between them. The four-player party finished about a third of the time, and the five- and six-player parties surprisingly did worse, partly because I'd overdone how difficult the adventure got when there were more players present than I'd planned for.</p>
+<p>It also answered the question I'd started with. At <span class="term" tabindex="0" aria-describedby="g-level">Level</span> 5, the dungeon wasn't what was stopping people: most parties reached the boss, which then ended somewhere between 40% and 47% of all runs. At Level 4, which is what I was initially intending to run the adventure at, the party finished about 2–3% of the time, and most of them never saw the boss at all.</p>
+<p>As helpful as this little simulation engine seemed at first blush, it could only play through this one adventure. The rooms were abstracted into code, and some of the module's more ... <em>specific</em> rules had leaked into the combat engine itself. Great for a one-time use, but redundant the moment the story concluded.</p>
+<p>The next question was the interesting one: <mark>what would it take to play <em>any</em> adventure?</mark></p>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>Meet the Guinea Pigs</h2>
+<p>The most essential ingredient to a good adventure is a group of intrepid heroes to go on said adventure. I mean, I'm no expert, but I'm pretty sure that's what Campbell was going for.</p>
+<p>A simulator built around my players' characters is great, but it would only answer questions about their table. Instead, I recruited the <em>Guinea Pigs</em>: four of the most ordinary, stereotypical adventurers I could think of. Standard <span class="term" tabindex="0" aria-describedby="g-ability">ability scores</span>, their <span class="term" tabindex="0" aria-describedby="g-class">class</span>'s default gear and spells, nothing clever. They're the control group.</p>
+</div>
+
+<div class="wide"><figure class="gps" aria-label="Interactive: the four Guinea Pigs, level by level">
+  <div class="lvl">
+    <label for="gp-level">Level</label><output id="gp-level-out" for="gp-level">1</output>
+    <div class="track"><input id="gp-level" type="range" min="1" max="5" step="1" value="1" aria-valuetext="Level 1"><div class="ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div>
+  </div>
+  <div class="gp-grid">
+
+    <article class="gp" data-gp="clarence" style="--acc: var(--s1)">
+      <svg class="gp-art" viewBox="0 0 120 120" role="img" aria-label="Clarence, a human fighter with a sword and shield">
+        <circle cx="60" cy="60" r="56" fill="var(--acc)" opacity=".14"/>
+        <path data-from="5" d="M97 24 C112 46 110 72 92 90" fill="none" stroke="var(--acc)" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+        <path data-from="5" d="M103 32 C114 52 112 70 100 84" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" opacity=".45"/>
+        <rect x="48" y="88" width="9" height="22" rx="3" fill="var(--steel-2)"/><rect x="63" y="88" width="9" height="22" rx="3" fill="var(--steel-2)"/>
+        <path d="M40 56 Q60 48 80 56 L78 92 Q60 97 42 92 Z" fill="var(--steel)"/>
+        <path d="M54 56 L66 56 L64 92 L56 92 Z" fill="var(--acc)"/>
+        <circle cx="60" cy="38" r="13" fill="var(--skin-1)"/>
+        <path d="M46 37 Q46 22 60 22 Q74 22 74 37 L70 37 Q69 28 60 28 Q51 28 50 37 Z" fill="var(--steel-2)"/>
+        <rect x="58.5" y="30" width="3" height="11" rx="1.5" fill="var(--steel-2)"/>
+        <circle cx="55" cy="40" r="1.4" fill="var(--art-ink)"/><circle cx="65" cy="40" r="1.4" fill="var(--art-ink)"/>
+        <line x1="82" y1="78" x2="96" y2="26" stroke="var(--steel)" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="76" y1="72" x2="90" y2="76" stroke="var(--wood)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="38" cy="72" r="16" fill="var(--acc)"/><circle cx="38" cy="72" r="16" fill="none" stroke="var(--steel-2)" stroke-width="3"/><circle cx="38" cy="72" r="4" fill="var(--steel)"/>
+        <path data-from="3" d="M96 15 L98.5 22 L105 24 L98.5 26 L96 33 L93.5 26 L87 24 L93.5 22 Z" fill="var(--s4)"/>
+      </svg>
+      <div class="gp-name">Clarence</div>
+      <div class="gp-role">The tank · Human Fighter</div>
+      <div class="gp-stats"><div><b data-hp>12</b><span class="term" tabindex="0" aria-describedby="g-hp">HP</span></div><div><b>18</b><span class="term" tabindex="0" aria-describedby="g-ac">AC</span></div></div>
+      <div class="gp-body"><p class="gp-blurb">Chain mail, a shield and a longsword, standing in the front rank so that whatever's swinging at the party swings at Clarence first. Once per rest, <em><span class="term" tabindex="0" aria-describedby="g-ft-second-wind">Second Wind</span></em> lets Clarence catch a breath and heal mid-fight.</p><ul class="gp-abil" aria-live="polite"></ul></div>
+    </article>
+
+    <article class="gp" data-gp="orik" style="--acc: var(--s4)">
+      <svg class="gp-art" viewBox="0 0 120 120" role="img" aria-label="Orik, a dwarf cleric with a mace and a holy symbol">
+        <circle cx="60" cy="60" r="56" fill="var(--acc)" opacity=".14"/>
+        <circle data-from="5" cx="60" cy="62" r="50" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-dasharray="3 7" stroke-linecap="round"/>
+        <rect x="45" y="92" width="11" height="18" rx="3" fill="var(--wood)"/><rect x="64" y="92" width="11" height="18" rx="3" fill="var(--wood)"/>
+        <path d="M34 62 Q60 50 86 62 L84 96 Q60 101 36 96 Z" fill="var(--steel)"/>
+        <path d="M48 60 L72 60 L70 96 L50 96 Z" fill="var(--acc)"/>
+        <circle cx="60" cy="44" r="13" fill="var(--skin-2)"/>
+        <path d="M47 44 Q47 64 60 72 Q73 64 73 44 Q68 52 60 52 Q52 52 47 44 Z" fill="var(--beard)"/>
+        <path d="M46 42 Q46 28 60 28 Q74 28 74 42 Z" fill="var(--steel-2)"/>
+        <rect x="44" y="40" width="32" height="4" rx="2" fill="var(--steel-2)"/>
+        <circle cx="55" cy="47" r="1.4" fill="var(--art-ink)"/><circle cx="65" cy="47" r="1.4" fill="var(--art-ink)"/>
+        <circle cx="60" cy="82" r="6" fill="var(--bg)"/><circle cx="60" cy="82" r="3" fill="var(--acc)"/>
+        <line x1="88" y1="86" x2="94" y2="58" stroke="var(--wood)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="95" cy="54" r="7" fill="var(--steel-2)"/>
+        <g data-from="3" opacity=".75">
+          <line x1="24" y1="44" x2="30" y2="18" stroke="var(--acc)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          <circle cx="31" cy="14" r="7" fill="none" stroke="var(--acc)" stroke-width="3"/>
+        </g>
+      </svg>
+      <div class="gp-name">Orik</div>
+      <div class="gp-role">The healer · Dwarf Cleric</div>
+      <div class="gp-stats"><div><b data-hp>12</b>HP</div><div><b>18</b>AC</div><div><div class="pips" data-slots></div><span class="term" tabindex="0" aria-describedby="g-slots">Spell slots</span></div></div>
+      <div class="gp-body"><p class="gp-blurb">Armoured as heavily as Clarence but working from the back rank, Orik keeps everyone standing with <em><span class="term" tabindex="0" aria-describedby="g-sp-healing-word">healing word</span></em> and <em><span class="term" tabindex="0" aria-describedby="g-sp-cure-wounds">cure wounds</span></em>, and casts <em><span class="term" tabindex="0" aria-describedby="g-sp-toll-the-dead">toll the dead</span></em> when nobody needs patching up.</p><ul class="gp-abil" aria-live="polite"></ul></div>
+    </article>
+
+    <article class="gp" data-gp="pip" style="--acc: var(--s3)">
+      <svg class="gp-art" viewBox="0 0 120 120" role="img" aria-label="Pip, a halfling rogue in a hood with a rapier">
+        <circle cx="60" cy="60" r="56" fill="var(--acc)" opacity=".14"/>
+        <g data-from="5" opacity=".55" transform="translate(-12 0)">
+          <path d="M42 54 Q58 34 74 54 L80 100 L36 100 Z" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-dasharray="4 4"/>
+        </g>
+        <rect x="50" y="94" width="8" height="15" rx="3" fill="var(--wood)"/><rect x="62" y="94" width="8" height="15" rx="3" fill="var(--wood)"/>
+        <path d="M42 62 Q60 54 78 62 L82 98 Q60 102 38 98 Z" fill="var(--acc)"/>
+        <path d="M45 56 Q60 30 75 56 Q71 46 60 46 Q49 46 45 56 Z" fill="var(--acc)"/>
+        <circle cx="60" cy="56" r="11" fill="var(--skin-3)"/>
+        <path d="M47 58 Q46 40 60 38 Q74 40 73 58 Q70 47 60 46 Q50 47 47 58 Z" fill="var(--acc)"/>
+        <circle cx="56" cy="58" r="1.3" fill="var(--art-ink)"/><circle cx="64" cy="58" r="1.3" fill="var(--art-ink)"/>
+        <path d="M56 63 Q60 65.5 64 63" fill="none" stroke="var(--art-ink)" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="78" y1="80" x2="104" y2="48" stroke="var(--steel)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M74 76 Q78 72 82 78" fill="none" stroke="var(--s4)" stroke-width="3" stroke-linecap="round"/>
+        <path data-from="1" data-to="2" d="M98 50 L99.5 54.5 L104 56 L99.5 57.5 L98 62 L96.5 57.5 L92 56 L96.5 54.5 Z" fill="var(--s4)"/>
+        <path data-from="3" data-to="4" d="M98 46 L100.5 53.5 L108 56 L100.5 58.5 L98 66 L95.5 58.5 L88 56 L95.5 53.5 Z" fill="var(--s4)"/>
+        <path data-from="5" d="M98 40 L101.5 52.5 L114 56 L101.5 59.5 L98 72 L94.5 59.5 L82 56 L94.5 52.5 Z" fill="var(--s4)"/>
+      </svg>
+      <div class="gp-name">Pip</div>
+      <div class="gp-role">The scout · Halfling Rogue</div>
+      <div class="gp-stats"><div><b data-hp>10</b>HP</div><div><b>15</b>AC</div></div>
+      <div class="gp-body"><p class="gp-blurb">The party's best at sneaking, spotting traps and disarming them. Once a turn, a hit from Pip's rapier or shortbow adds a <em><span class="term" tabindex="0" aria-describedby="g-ft-sneak-attack">Sneak Attack</span></em> for extra damage.</p><ul class="gp-abil" aria-live="polite"></ul></div>
+    </article>
+
+    <article class="gp" data-gp="zirael" style="--acc: var(--s7)">
+      <svg class="gp-art" viewBox="0 0 120 120" role="img" aria-label="Zirael, an elf wizard with a pointed hat and a staff">
+        <circle cx="60" cy="60" r="56" fill="var(--acc)" opacity=".14"/>
+        <path d="M40 64 Q58 56 76 64 L84 108 L32 108 Z" fill="var(--acc)"/>
+        <path d="M46 52 Q44 72 50 80 L70 80 Q74 70 70 52 Z" fill="var(--hair)"/>
+        <circle cx="58" cy="50" r="11" fill="var(--skin-4)"/>
+        <path d="M47 50 L40 44 L47 46 Z" fill="var(--skin-4)"/><path d="M69 50 L76 44 L69 46 Z" fill="var(--skin-4)"/>
+        <circle cx="54" cy="52" r="1.3" fill="var(--art-ink)"/><circle cx="62" cy="52" r="1.3" fill="var(--art-ink)"/>
+        <path d="M40 42 L78 42 Q74 38 66 37 L58 8 L50 37 Q42 38 40 42 Z" fill="var(--acc)"/>
+        <rect x="46" y="37" width="24" height="4" rx="2" fill="var(--s4)"/>
+        <line x1="88" y1="108" x2="88" y2="34" stroke="var(--wood)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="88" cy="28" r="7" fill="var(--bg)" stroke="var(--acc)" stroke-width="2.5"/>
+        <g data-from="3" stroke="var(--s2)" stroke-width="2.5" stroke-linecap="round">
+          <line x1="99" y1="19" x2="104" y2="14"/><line x1="100" y1="29" x2="107" y2="29"/><line x1="98" y1="38" x2="103" y2="43"/>
+        </g>
+        <g data-from="5">
+          <path d="M28 86 C18 76 24 64 30 58 C30 66 36 66 36 60 C44 68 42 80 34 86 Z" fill="var(--s2)"/>
+          <path d="M30 84 C25 78 28 72 31 68 C32 73 35 73 35 70 C38 75 37 81 33 84 Z" fill="var(--s4)"/>
+        </g>
+      </svg>
+      <div class="gp-name">Zirael</div>
+      <div class="gp-role">The artillery · Elf Wizard</div>
+      <div class="gp-stats"><div><b data-hp>7</b>HP</div><div><b>16</b>AC</div><div><div class="pips" data-slots></div>Spell slots</div></div>
+      <div class="gp-body"><p class="gp-blurb">Easily the most fragile of the four, but Zirael brings <em><span class="term" tabindex="0" aria-describedby="g-sp-magic-missile">magic missile</span></em>, <em><span class="term" tabindex="0" aria-describedby="g-sp-sleep">sleep</span></em> and <em><span class="term" tabindex="0" aria-describedby="g-sp-burning-hands">burning hands</span></em>, plus the <em><span class="term" tabindex="0" aria-describedby="g-sp-shield">shield</span></em> spell to turn a hit into a miss at the last second. A <span class="term" tabindex="0" aria-describedby="g-shortrest">short rest</span> brings back some spent spell slots.</p><ul class="gp-abil" aria-live="polite"></ul></div>
+    </article>
+
+  </div>
+  <div class="note">The numbers come from the simulator's class builder. AC stays the same at every level, because the builder keeps their starting gear.</div>
+</figure></div>
+
+<div class="col">
+<p>If more party members are needed, the simulation would then bring in <strong>Grukk, the Half-Orc Barbarian</strong> and <strong>Lyra, the Half-Elf Bard</strong>.</p>
+<p>Now these sound like a lovely group of people in isolation, but they also need ideas and opinions on how to approach an adventure. So on every run, each of the Guinea Pigs is given a new personality: three scores between 0 and 1 for <strong>caution</strong>, <strong>curiosity</strong> and <strong>boldness</strong>.</p>
+<ul class="traits">
+  <li><strong>Caution</strong> is how carefully the party looks after itself. A cautious party rests sooner, and takes a breather before a room it believes holds a boss if it's running low. It also pulls out of a losing fight earlier, instead of fighting to the last.</li>
+  <li><strong>Curiosity</strong> is how much it wants to know what's behind the next door. A curious party is more likely to take the side passage instead of heading straight for the goal, and more tempted to open things it probably shouldn't.</li>
+  <li><strong>Boldness</strong> is its appetite for a fight it could walk away from. Each Guinea Pig's boldness is drawn as roughly the opposite of their caution, with a little wobble, so a cautious adventurer is rarely also a bold one.</li>
+</ul>
+<p>When the party has to decide something together, the loudest voice speaks for it: whoever feels most strongly, in either direction, sets the party's score for that trait. If the rest of the party clearly leans the other way, that run's leader settles it, which happens in about one run in four.</p>
+<p>Some choices belong to one person, though. When the party finds something it probably shouldn't open, it's the most curious member who decides, and the log names them.</p>
+<p>None of these decide anything alone. At every choice the party also weighs what it can actually see: how hurt it is, how many spells and hit dice it has left, and what a room shows on the way in.</p>
+<p>That's how one party stands in for every kind of table. Try it: these are the actual formulas from the code. The first three are the party's habits, read from its combined scores. The last is the kind of choice one person makes alone, so there the sliders are the most curious member's own. Boldness doesn't get a slider, because the adventure we're about to send them into never asks about it.</p>
+
+<figure class="dials" aria-label="Interactive: how caution and curiosity change the party's decisions">
+  <div class="dial"><label for="d-caution">Caution <output id="o-caution">0.50</output></label><input id="d-caution" type="range" min="0.1" max="0.9" step="0.01" value="0.5"></div>
+  <div class="dial"><label for="d-curiosity">Curiosity <output id="o-curiosity">0.50</output></label><input id="d-curiosity" type="range" min="0.1" max="0.9" step="0.01" value="0.5"></div>
+  <div class="viz-wrap">
+    <div class="party-size" role="group" aria-label="Party size"><span>Party of</span><button type="button" data-n="4" aria-pressed="true">4</button><button type="button" data-n="5" aria-pressed="false">5</button><button type="button" data-n="6" aria-pressed="false">6</button></div>
+    <div class="viz">
+      <div class="viz-k">When it rests</div>
+      <div class="pool" id="v-pool" role="img"></div>
+      <div class="pool-names" id="v-pool-names" aria-hidden="true"></div>
+      <p class="viz-cap" id="v-pool-cap" aria-live="polite"></p>
+    </div>
+    <div class="viz">
+      <div class="viz-k">When it runs</div>
+      <div class="party-row" id="v-party" role="img"></div>
+      <p class="viz-cap" id="v-party-cap" aria-live="polite"></p>
+    </div>
+  </div>
+  <div class="dial-out">
+    <div class="o"><span class="v" id="r-explore"></span><span class="k">Chance it explores somewhere new instead of heading for its goal</span></div>
+    <div class="o"><span class="v" id="r-open"></span><span class="k">Chance its most curious member opens something they probably shouldn't</span></div>
+  </div>
+</figure>
+<p class="note">Each choice is scored, then gets a little random noise so near-ties can go either way. Every choice is logged with its reason. Shown at 1st level. The first three formulas belong to the engine and work the same in any adventure. In a party of four, caution never changes when it runs: it's always once the second member falls. Try five or six. The last is written by each adventure; these numbers come from the one we're about to visit.</p>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>A dungeon, written as data</h2>
+<p>With our adventurers recruited, we now need a quest for them to go on. Now sure, I could use one of my own for this part, but that feels a bit too self-indulgent. Besides, there's always the risk of spoilers.</p>
+<p class="aside"><em>(Seriously, if you play in my campaign and you're still reading, close this tab and think about your choices.)</em></p>
+<p>Instead, I'm going to use Matt Colville's <a href="https://www.gmbinder.com/share/-L_0WX-KKXsZA22VHr5j" target="_blank" rel="noopener"><em>The Delian Tomb</em></a>, which is the gold standard for first-time players. In this adventure, goblins have kidnapped Bess, the blacksmith's daughter, and the party must track them through the woods to a desecrated tomb to bring her home.</p>
+<p>Now at the <em>highest</em> level, an adventure can be abstracted into a map with a series of rooms joined by doors. Each room can hold monsters, a trap, a skill check, loot, or specific terrain challenges. Here's a real room from the tomb, and the secret door out of it:</p>
+<pre class="code"><b>m.node</b>('4', name='4 Hall of the Oathkeeper',
+       encounter='bugbear, goblin shaman', importance='boss', prepare=True,
+       terrain=dict(distance=20, cover=dict(monsters=2)),
+       checks=[dict(kind='flag', flag='secret_door', chance=0.55)],
+       loot=dict(potions=2, gold='2d20+10', flag='bess'))
+
+<b>m.edge</b>('4', '5', gate=lambda run: run.flags.get('secret_door'),
+       label='the secret door ("I give my word")')</pre>
+
+<details class="callout"><summary>Wait, what am I looking at?</summary>
+  <p class="lead">Here's what this room looks like in the original module.</p>
+  <h4>Hall of the Oathkeeper</h4>
+  <div class="readaloud"><span class="lbl">Read aloud</span>
+    <p>Dominated by a giant stone statue of a knight, raised up on a dais, standing tall with their sword point down between their feet.</p>
+    <p>A thick haze billows up from a makeshift altar in the center of the room where a goblin adorned with jewelery and warpaint chants rhythmically while they rock back and forth.</p>
+    <p>Behind the goblin, a young girl quietly whimpers, head in her hands, from a small cage near the foot of the statue.</p>
+  </div>
+  <p>What was once the sacred chamber consecrated by the Delian Order on behalf of Lord Delius has been desecrated by the goblins. Along with the <strong>goblin shaman</strong>, the leader of this band of miscreants resides here, a <a href="https://www.dndbeyond.com/monsters/16817-bugbear" target="_blank" rel="noopener"><strong>bugbear</strong></a>.</p>
+  <p>Near the cage where Bess was being held, there is a large nest of blankets where the bugbear slept. The nest is littered with a few dozen gold pieces and gemstones worth 2d20 + 10 gp.</p>
+  <p>The statue of Delius has an inscription at the base, which reads:</p>
+  <div class="readaloud"><span class="lbl">Read aloud</span><p>If you are to keep this, you must first give it to me.</p></div>
+  <p>If any character speaks, "I give my word" — or anything in the spirit of that — the secret door leading to the tomb will open!</p>
+  <p class="credit">From <em>The Delian Tomb</em> by Matt Colville, published by MCDM.</p>
+  <p>And here's how the code above maps onto it:</p>
+  <ul>
+    <li><code>encounter</code> is the bugbear and the goblin shaman. <code>importance='boss'</code> and <code>prepare=True</code> tell the party this is a room worth resting before.</li>
+    <li><code>terrain</code> starts the two sides 20 feet apart, with cover for the monsters.</li>
+    <li><code>loot</code> is the bugbear's nest, 2d20 + 10 gold, and Bess.</li>
+    <li><code>checks</code> is the inscription. The simulator can't actually say "I give my word", so <code>chance=0.55</code> is my guess at how often a table works it out. The edge below it only lets the party through to the tomb if it does.</li>
+  </ul>
+</details>
+
+<p>This is ... pretty much all of the code any given room needs. The whole adventure comes to 76 lines, written straight from the module. The simulator looks up any monster present in a room among the 334 listed in the 5E <span class="term" tabindex="0" aria-describedby="g-srd">SRD</span>, and reads anything else from plain text. The goblin shaman isn't one of the SRD's monsters, so the module writes it in, in the same English you'd find in a rulebook. I'll admit it's a simplification: the adventure gives the shaman a short list of cleric spells, and the module boils them down to one spell attack:</p>
+<pre class="code">Hex Bolt. Ranged Spell Attack: +4 to hit, range 60 ft., one target.
+Hit: 7 (2d6) necrotic damage.</pre>
+<p>Parse that and you have a monster that can fight. Every turn it weighs what it can do: multiattack, breath weapons, spells by slot, conditions, finishing off the wounded.</p>
+<p>Anything an adventure invents that a field can't describe, like a lamp that reveals ghosts or the blade you have to pull out of a boss's skull to defeat, attaches to the engine through a hook. The engine stays clean: it knows 5E and nothing else.</p>
+</div>
+</section>
+
+
+<section>
+<div class="col">
+<h2>One trip through the tomb</h2>
+<p>Here's what the simulator actually does, for one run out of 2,000, alongside what the module says is happening while it does it. Every roll below is from the log of run <strong>#4101645</strong>, which you can replay yourself.</p>
+<p>Scroll to walk the party through.</p>
+</div>
+<div class="scrolly">
+  <div class="stage">
+    <div class="stage-room" id="stage-room"></div>
+    <div class="chart" id="c-map" role="img" aria-label="Map of the Delian Tomb showing the party's position as you scroll."></div>
+    <div class="scene" id="stage-hp" role="group" aria-label="The party in this step"></div>
+  </div>
+  <div class="steps" id="steps">
+    <div class="step" data-i="0"><h3>The smithy</h3><p>The module opens in the Green Dragon Inn, where Lars the blacksmith bursts through the door, smelling of sulfur: goblins have taken his daughter, Bess. There's nothing to roll in a tavern, so the simulator skips straight to Lars's smithy, where the goblins left their tracks.</p><p>Before the first die, each Guinea Pig draws a personality. Zirael is the most reckless of the four (<span class="num">caution 0.26, boldness 0.81</span>), so Zirael speaks for the party's caution and boldness. Orik is the most curious (<span class="num">0.81</span>), so Orik speaks for its curiosity. Zirael is also this run's leader, but the party never splits, so Zirael never has to step in. Then Orik kneels by the tracks: <span class="num">15 + 3 = 18</span> against <span class="term" tabindex="0" aria-describedby="g-dc">DC</span> 10. At least two goblins dragged something north, into the Boar Wood.</p></div>
+    <div class="step" data-i="1"><h3>The Boar Wood</h3><p>The wood takes more than a day to cross, so the party makes camp in a clearing and keeps watch. The module rolls a d12 for the night, and the only thing that can happen is a curious boar wandering in on a 12. Tonight it doesn't. Sometimes, an adventure can involve the party simply walking from one room to the next, and the simulator walks it too.</p></div>
+    <div class="step" data-i="2"><h3>The goblin patrol</h3><p>Out of the trees, the stonework of an old tomb shows between the hills, and two goblins are patrolling the hilltop in front of it. In the module, a wounded goblin runs to warn the others, so how this fight goes decides what's waiting inside.</p><p>The party sneaks up as a group. Zirael rolls a natural 1, but the other three carry it, and they get a surprise round from 60 feet away. Orik's <em><span class="term" tabindex="0" aria-describedby="g-sp-toll-the-dead">toll the dead</span></em> and Clarence's javelin finish both goblins in two rounds, so nobody runs to warn the tomb.</p></div>
+    <div class="step" data-i="3"><h3>The entrance</h3><p>Two goblin guards stand at the tomb's broken stone doors, none the wiser. All four Guinea Pigs sneak up on them. Zirael's dagger and Orik's <em><span class="term" tabindex="0" aria-describedby="g-sp-toll-the-dead">toll the dead</span></em> drop one, and Pip's <em><span class="term" tabindex="0" aria-describedby="g-ft-sneak-attack">Sneak Attack</span></em> drops the other before it can slip inside. One round.</p></div>
+    <div class="step-note"><h3>At my table</h3><p>When my own table reached these doors, one of my players dressed the whole party up as goblins with soot, mud and buttons for eyes, and walked them in without a fight. There's no field for that.</p></div>
+    <div class="step" data-i="4"><h3>The offering room</h3><p>Down the steps the air turns cold, and from somewhere deeper comes a rhythmic chanting: the goblins mean to sacrifice Bess to their god, Maglubiyet. At the bottom is a room of mouldy bedrolls and goblins, one more than the party: five.</p><p>Clarence's stealth fails, but the others carry it again. Clarence rolls a natural 1, Pip crits for 19, and Zirael's <em><span class="term" tabindex="0" aria-describedby="g-sp-burning-hands">burning hands</span></em> takes out two goblins, then two more. Two rounds, nobody hurt. On the wall, a carving shows knights holding back a tide of monsters, above an oath sworn "by honor of my word". The simulator can't read it, but it's the answer to a riddle two rooms on.</p></div>
+    <div class="step" data-i="5"><h3>The trap</h3><p>A twisting corridor leads deeper, with a pressure plate halfway down that swings a scythe from the ceiling. Pip misses it, <span class="num">4 + 5 = 9</span> against DC 12, so Clarence, out in front, steps right on it, and dodges with a <span class="num">21</span> against DC 15.</p><p>The module marks the next room as the place to rest before a boss. The party is at full health, so it walks straight in.</p></div>
+    <div class="step" data-i="6"><h3>The Hall of the Oathkeeper</h3><p>A stone knight towers over a makeshift altar, where the shaman chants over Bess, caged at the statue's feet. The bugbear who leads the band is waiting too, and the module warns that it's the first enemy here that fights cleverly rather than out of fear.</p><p>It goes badly, and fast. Four rounds later Clarence and Orik are the only ones still standing, without a scratch. We'll come back to how further down.</p></div>
+    <div class="step" data-i="7"><h3>A decision</h3><p>Bess is free. On the statue's base is the riddle: "If you are to keep this, you must first give it to me." A real table might puzzle over it for half an hour. The simulator rolls the 55% from the code above, and this time someone gives their word: a secret door grinds open. So the survivors choose whether to go through, and the log says why:</p><p class="logline">where next: 5 (curious about what is left; Home 0.36, 5 0.57)</p></div>
+    <div class="step" data-i="8"><h3>The tomb</h3><p>Behind the door is the true resting place of the Delian Order: six knights in carved sarcophagi, and Lord Delius in the largest at the centre, his sword, the Goblin Slayer, inside. The module says only a paladin sworn to the Delian Oath can open one safely. The Guinea Pigs have no paladin, and this isn't the party's call anyway. Orik, the most curious member, wants the sword:</p><p class="logline"><span class="solo">Orik decides alone</span>open a sarcophagus?: open one (Orik, curiosity 0.81: the Goblin Slayer and Delian mail are inside; open one 0.68, leave them be 0.65)</p></div>
+    <div class="step" data-i="9"><h3>The righteous dead</h3><p>The knights don't take kindly to uninvited grave robbers. One skeleton rises for each survivor. Arrows keep finding Clarence, who drops in the third round, until Orik's <em><span class="term" tabindex="0" aria-describedby="g-sp-healing-word">healing word</span></em> brings Clarence back and Orik's mace finishes the last skeleton. Orik's gamble pays off: Lord Delius's sword, blessed to burn goblins, is theirs.</p></div>
+    <div class="step" data-i="10"><h3>Home</h3><p>Clarence and Orik walk Bess back to Villane with the Goblin Slayer, and without Pip and Zirael. The run is logged as finished, with two dead. It took the simulator a few milliseconds. Then it does it again, with new personalities and new dice.</p></div>
+  </div>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>Inside a fight</h2>
+<p>A fight is where most of the code lives: attacks, saves, spell slots, concentration, conditions, reactions, legendary actions, <span class="term" tabindex="0" aria-describedby="g-deathsave">death saves</span>, morale. On each turn, a character scores every option against every target by expected damage, marks spell slots down a little so they aren't burned on goblins, and takes the best.</p>
+<p>There's no battle map. Position is front rank, back rank and zones: how far apart the sides start, cover, high ground, chokepoints, darkness. It's a simplification, but it means a room can say "20 feet apart with cover" and that changes who gets to act. Here's that hall, round by round.</p>
+<div class="log">
+  <div class="log-head"><div class="log-title">Run 4101645, room 4</div><div class="log-meta">4 rounds</div></div>
+  <div class="cast" aria-label="After the fight">
+    <div class="c" style="--acc:var(--s1)"><b>Clarence</b>12 / 12 HP</div>
+    <div class="c" style="--acc:var(--s4)"><b>Orik</b>12 / 12 HP</div>
+    <div class="c dead"><b>Pip</b>Dead</div>
+    <div class="c dead"><b>Zirael</b>Dead</div>
+  </div>
+  <ol class="beats">
+    <li><span class="rd">Rd 1</span><span>Orik casts <em><span class="term" tabindex="0" aria-describedby="g-sp-bless">bless</span></em>. The shaman's hex bolt hits Pip <span class="roll">2d6 = 9</span>. Zirael's dagger <span class="roll">1d4 = 7</span> kills the shaman, and Clarence hits the bugbear for <span class="roll">9</span>.</span></li>
+    <li class="big"><span class="rd">Rd 1</span><span>The bugbear's morningstar hits Pip: <span class="roll">2d8 = 16</span>. Pip dies outright.</span></li>
+    <li class="big"><span class="rd">Rd 2</span><span>Clarence rolls a natural 1. The bugbear rolls a <span class="term" tabindex="0" aria-describedby="g-nat20">natural 20</span> with a javelin on Zirael: <span class="roll crit">4d6 = 16</span>. Zirael dies outright.</span></li>
+    <li><span class="rd">Rd 3–4</span><span>The bugbear misses Clarence. Orik's <em><span class="term" tabindex="0" aria-describedby="g-sp-toll-the-dead">toll the dead</span></em> chips away at it, and Clarence's longsword <span class="roll">1d8 = 13</span> finishes it.</span></li>
+  </ol>
+</div>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>Then do it 2,000 times</h2>
+<p>So was that run typical? Not even remotely, and one run in isolation can't tell you that. One run is a story. Two thousand is data, and they take about two and a half seconds to finish. Here's what that looks like, with every square below representing one trip through Delian's Tomb.</p>
+</div>
+<div class="wide"><figure>
+  <figcaption class="head"><div class="t">Every run, one square each</div><div class="s">The stock party, 2,000 runs, sorted by how they ended. Hover over a square for its group.</div></figcaption>
+  <div class="legend" id="waffle-legend"></div>
+  <div class="chart" id="c-waffle" role="img" aria-label="2,000 squares: 1,556 finished with nobody dead, 387 finished with at least one death, 4 wiped in the offering room, 28 in the Hall of the Oathkeeper and 25 in the tomb."></div>
+</figure></div>
+<div class="col">
+<p>About three runs in four end with nobody dead, and 57 end with the entire party dead. I've used "finished" generously here, though. It only means Bess got home safely, with no mind to the number of dead adventurers it took to do so. On the bright side, that means the run you just watched counts!</p>
+<p>Then you change one thing and run it again. That's where the stock party earns its keep, because every difference comes from the thing you changed: fewer players, a higher level, a different ruling.</p>
+<figure>
+  <figcaption class="head"><div class="t">Change one thing, run it again</div><div class="s">Share of different-sized parties that brought Bess home, 2,000 runs each.</div></figcaption>
+  <div class="chart" id="c-size" role="img" aria-label="Three players 88%, four players 97%, five players 100%, six players 99%."></div>
+  <div class="note">Five and six players add Grukk and Lyra.</div>
+</figure>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>Can you trust it?</h2>
+<p>Of course, none of this matters if the numbers are wrong, and the new engine started life as a rewrite of the old one.</p>
+<p>I built this with Claude, in conversation. Before any code changed, it read the original and sorted it into what would carry over and what wouldn't. About half was already general: the dice, the combat loop, the characters, the personality model. The rest was The Arbiter's Grounds' specific mechanics tangled through everything.</p>
+<p>So we split the engine from the content, loaded the free rules' monsters in so that only bosses would need hand-written tactics, and then tried <em>very</em> different adventures to prove new ones don't need engine changes.</p>
+<p class="pull">If the port can't reproduce the numbers you <span class="hand">already trust</span>, nothing built on top of it can be trusted either.</p>
+<p>The new engine had to match the old simulator on every study. It matched within noise on all eight, and replayed 14,400 isolated fights and 600 player-versus-player fights exactly.</p>
+<div class="stat-row">
+  <div class="stat"><div class="n">8 / 8</div><div class="l">studies matched the old simulator within noise</div></div>
+  <div class="stat"><div class="n">14,400</div><div class="l">isolated fights replayed exactly</div></div>
+  <div class="stat"><div class="n">600</div><div class="l">player-versus-player fights replayed exactly</div></div>
+</div>
+<p>Then the engine went public, with a line down the middle. The engine, the stock party, the monsters and the Delian Tomb are on GitHub. My players' characters, my own adventures and their reports stay private.</p>
+<p class="aside"><em>(Players, if y'all are still here. I reemphasize, <strong>private</strong>.)</em></p>
+
+<h3>Did the fixes work?</h3>
+<p>They did! I rewrote parts of my Arbiter's Grounds using what the first report said: when wandering patrols can appear, how the two biggest bosses spend their turns, and some of the treasure. Then I had the module play the new text, with one setting that still plays the old rules. Old-rules mode has to match the original code exactly, and it did, on all 24,000 runs.</p>
+<p>That makes before and after a fair comparison: same engine, same seeds, random personalities on both sides.</p>
+</div>
+<div class="wide"><figure>
+  <figcaption class="head"><div class="t">The same dungeon, before and after the rewrite</div><div class="s">Share of runs that finished The Arbiter's Grounds, by study.</div></figcaption>
+  <div class="legend"><span><i class="sw" style="background:var(--muted)"></i>Original rules</span><span><i class="sw" style="background:var(--pen)"></i>As rewritten</span></div>
+  <div class="chart" id="c-compare" role="img" aria-label="Finish rates rose in every study. Random 4th level 3% to 5%, random 5th level 19% to 24%, random 5th levelling to 6th 27% to 33%, six players unscaled 71% to 88%, six players scaled 63% to 80%."></div>
+  <div class="note">Each study draws random parties from my players' characters.</div>
+</figure></div>
+<div class="col">
+<p>Every study got easier, but that doesn't say which change specifically caused it. So on one study, I had the simulator put each old rule back, one at a time. <mark>Only the patrol change was clearly bigger than noise</mark>, at about 3 points. The others were worth 1 to 1.6 points each, and one did nothing measurable.</p>
+<p>And the numbers kept me honest about what I hadn't fixed. The dragon skeleton is still where most failed four- and five-player runs end, and I still haven't decided what happens when a party wipes late in the dungeon: death, or capture. That one ruling moves the four-player party's finish rate from about a third to about 70%.</p>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>What it's good at</h2>
+<p>What it's good at is the shape of a whole adventure:</p>
+<div class="good">
+  <div><b>Which fights actually kill</b><span>In The Arbiter's Grounds, the dragon skeleton ended 40–47% of all runs at 5th level.</span></div>
+  <div><b>What content parties never see</b><span>Only about a quarter of runs ever reach the Delian Order's tomb.</span></div>
+  <div><b>Which rulings swing the result</b><span>Death or capture on a wipe moves one party's finish rate from about a third to about 70%.</span></div>
+</div>
+<details class="callout"><summary>What it can't do (yet)</summary><ul>
+  <li><strong>No battle map.</strong> Zones and ranks stand in for squares, so flanking and clever positioning are rough at best.</li>
+  <li><strong>Scripted players.</strong> Real tables are smarter and stranger. They'd look harder for that secret door, and do things no script would.</li>
+  <li><strong>Thin outside combat.</strong> Talking, puzzles and mysteries come down to the odds of a skill check.</li>
+  <li><strong>One stretch at a time.</strong> It won't carry a party through a whole season for you.</li>
+</ul></details>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>Not just dungeons</h2>
+<p>The same format stretches to the messier parts of a campaign. A module can include travel before the first room, wandering monsters, session breaks, and what a wipe actually means at your table: death, or capture.</p>
+<p>The stock party can step aside, too. Give it your own characters, built from their PDF sheets, and each one plays to a personality score taken from their backstory.</p>
+<p>And it doesn't have to start fresh. I use it on my own campaign's next session, with the party starting where the last one stopped: a setting can begin them at 60% health with half their spell slots gone, because that's how they'll really walk in.</p>
+<p class="closer">The boss might still crush them, and nobody may open the door. <span class="hand">Welp, if they die, they die.</span> But at least now I know the odds before I sit down.</p>
+</div>
+</section>
+
+<section>
+<div class="col">
+<h2>Try it</h2>
+<p>It needs Python 3.9 or later and nothing else.</p>
+<pre class="code"><span class="cm"># say what you want to learn</span>
+<b>python3 -m playtest brief delian_tomb</b>
+<span class="cm"># play it 2,000 times</span>
+<b>python3 -m playtest run delian_tomb</b>
+<span class="cm"># write the report and the room map</span>
+<b>python3 -m playtest report delian_tomb</b>
+<span class="cm"># the run on this page, roll by roll</span>
+<b>python3 -m playtest replay delian_tomb stock 4101645</b>
+<span class="cm"># or skip the dungeon: one fight, 500 times</span>
+<b>python3 -m playtest fight none --party stock --level 3 --monsters "owlbear, wolf x2"</b></pre>
+<p><a class="linkcard" href="https://github.com/vikrantsmehra/dnd-playtest-simulator" target="_blank" rel="noopener">vikrantsmehra/dnd-playtest-simulator ↗</a></p>
+
+<hr class="sep">
+<details class="callout"><summary>How this was made</summary><ul>
+  <li>The run, the squares and the party-size figures come from four studies of 2,000 runs each, played on 10 November 2026 with the public code at commit <a href="https://github.com/vikrantsmehra/dnd-playtest-simulator/commit/cb9e7dc" target="_blank" rel="noopener"><span class="num">cb9e7dc</span></a> (each Guinea Pig with their own personality, Grukk and Lyra as the fifth and sixth, and the wizard's Arcane Recovery), module as written, seed 41. Seeds reproduce a run only with that same code.</li>
+  <li>The figures from the original engine, at commit <span class="num">26bb5be</span>, still reproduce on the new code with <code>--set voices=party</code>.</li>
+  <li>The opening Arbiter's Grounds figures come from the original simulator's report, and are approximate. The before-and-after chart comes from a separate pair of runs on one engine.</li>
+  <li><em>The Delian Tomb</em> is Matt Colville's free first-level adventure, published by MCDM. The module encodes its rooms, encounters and checks; get the adventure itself from MCDM.</li>
+</ul></details>
+</div>
+</section>
+
+
+<footer class="col">Vikrant Mehra · <a href="../">More in Play</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+(function () {
+  var root = document.documentElement, sw = document.getElementById("theme-switch");
+  function sync() { sw.setAttribute("aria-checked", root.getAttribute("data-theme") === "dark" ? "true" : "false"); }
+  sync();
+  sw.addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("vm-theme", next); } catch (e) {}
+    sync(); drawAll();
+  });
+})();
+
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const W = id => { const el = document.getElementById(id); return el ? el.clientWidth : 0; };
+const tip = document.getElementById('tip');
+function showTip(html, ev) {
+  tip.innerHTML = html; tip.classList.add('on');
+  tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - tip.offsetWidth - 10) + 'px'; tip.style.top = ev.clientY + 14 + 'px';
+}
+function hideTip() { tip.classList.remove('on'); }
+function svgIn(id, h) {
+  const el = d3.select('#' + id); el.selectAll('*').remove();
+  return el.append('svg').attr('width', W(id)).attr('height', h).attr('viewBox', `0 0 ${W(id)} ${h}`);
+}
+
+/* Hover definitions: hover, keyboard focus or a tap shows the term's definition under it. */
+(function () {
+  let open = null;
+  function place(el) {
+    const def = document.getElementById(el.getAttribute('aria-describedby'));
+    if (!def) return;
+    tip.innerHTML = `<b>${def.dataset.t}</b>${def.innerHTML}`;
+    tip.classList.add('on');
+    const r = el.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = Math.max(10, Math.min(r.left, window.innerWidth - tw - 10)) + 'px';
+    tip.style.top = (r.bottom + 8 + th > window.innerHeight ? r.top - th - 8 : r.bottom + 8) + 'px';
+    if (open && open !== el) open.classList.remove('open');
+    open = el; el.classList.add('open');
+  }
+  function close() { if (open) open.classList.remove('open'); open = null; hideTip(); }
+  const termOf = t => t && t.closest ? t.closest('.term') : null;
+  document.addEventListener('mouseover', e => { const t = termOf(e.target); if (t) place(t); });
+  document.addEventListener('mouseout', e => { const t = termOf(e.target); if (t && t === open && !t.contains(e.relatedTarget) && document.activeElement !== t) close(); });
+  document.addEventListener('focusin', e => { const t = termOf(e.target); if (t) place(t); });
+  document.addEventListener('focusout', e => { const t = termOf(e.target); if (t && t === open) close(); });
+  document.addEventListener('click', e => { const t = termOf(e.target); if (t) { if (open === t && e.pointerType !== 'mouse') close(); else place(t); } else if (open) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && open) close(); });
+  window.addEventListener('scroll', () => { if (open) close(); }, { passive: true });
+})();
+
+/* The Guinea Pigs, level by level. Numbers from playtest/builder.py building the stock party at levels 1-5.
+   Each feature is [from level, to level, text]; a feature whose "from" is the current level (above 1) is tagged New. */
+const FT = (id, label) => `<em><span class="term" tabindex="0" aria-describedby="g-ft-${id}">${label}</span></em>`;
+const SP = (id, label) => `<em><span class="term" tabindex="0" aria-describedby="g-sp-${id}">${label}</span></em>`;
+const DC = '<span class="term" tabindex="0" aria-describedby="g-dc">DC</span>';
+const GP = {
+  clarence: { hp: [12, 20, 28, 36, 44], feats: [
+    [1, 5, 'Longsword and shield, in the front rank'], [1, 5, '<em>Second Wind</em>: heals mid-fight, once per rest'],
+    [2, 5, `${FT('action-surge', 'Action Surge')}: one extra action per rest`], [3, 5, 'Critical hits on a 19 or 20'],
+    [4, 5, 'Stronger: +6 to hit'], [5, 5, `${FT('extra-attack', 'Extra Attack')}: two swings a turn`]] },
+  orik: { hp: [12, 21, 30, 39, 48], slots: [[2], [3], [4, 2], [4, 3], [4, 3, 2]], feats: [
+    [1, 5, `<em>Healing word</em>, <em>cure wounds</em>, ${SP('bless', 'bless')}, <em>toll the dead</em>`], [2, 5, `${FT('channel-divinity', 'Channel Divinity')}`],
+    [3, 5, `2nd-level spells: ${SP('aid', 'aid')}, ${SP('spiritual-weapon', 'spiritual weapon')}, ${SP('hold-person', 'hold person')}`],
+    [4, 5, `Wiser: spells are harder to resist (${DC} 14)`],
+    [5, 5, `3rd-level spells: ${SP('spirit-guardians', 'spirit guardians')}, ${SP('revivify', 'revivify')}, ${SP('mass-healing-word', 'mass healing word')}`]] },
+  pip: { hp: [10, 17, 24, 31, 38], feats: [
+    [1, 5, 'Stealth, traps and locks'], [1, 2, '<em>Sneak Attack</em> 1d6'], [3, 4, '<em>Sneak Attack</em> 2d6'], [5, 5, '<em>Sneak Attack</em> 3d6'],
+    [4, 5, 'Nimbler: +6 to hit'], [5, 5, `${FT('uncanny-dodge', 'Uncanny Dodge')}: halves one big hit a round`]] },
+  zirael: { hp: [7, 12, 17, 22, 27], slots: [[2], [3], [4, 2], [4, 3], [4, 3, 2]], feats: [
+    [1, 5, '<em>Magic missile</em>, <em>sleep</em>, <em>burning hands</em>'], [1, 5, '<em>Shield</em>: turns a hit into a miss'],
+    [1, 5, `${FT('arcane-recovery', 'Arcane Recovery')}: some slots back on a short rest`],
+    [3, 5, `2nd-level spells: ${SP('scorching-ray', 'scorching ray')}, ${SP('shatter', 'shatter')}, ${SP('web', 'web')}`],
+    [4, 5, `Smarter: spells are harder to resist (${DC} 14)`],
+    [5, 5, `3rd-level spells: ${SP('fireball', 'fireball')}, ${SP('counterspell', 'counterspell')}, ${SP('hypnotic-pattern', 'hypnotic pattern')}`]] }
+};
+const ORD = ['1st', '2nd', '3rd'];
+function level() {
+  const L = +document.getElementById('gp-level').value, inp = document.getElementById('gp-level');
+  document.getElementById('gp-level-out').textContent = L;
+  inp.setAttribute('aria-valuetext', 'Level ' + L);
+  document.querySelectorAll('.gp').forEach(card => {
+    const d = GP[card.dataset.gp];
+    card.querySelector('[data-hp]').textContent = d.hp[L - 1];
+    const pips = card.querySelector('[data-slots]');
+    if (pips && d.slots) {
+      const s = d.slots[L - 1];
+      pips.innerHTML = s.map(n => '<span>' + '<i></i>'.repeat(n) + '</span>').join('');
+      pips.setAttribute('aria-label', s.map((n, i) => `${n} ${ORD[i]}-level`).join(', '));
+      pips.setAttribute('role', 'img');
+    }
+    card.querySelector('.gp-abil').innerHTML = d.feats.filter(f => L >= f[0] && L <= f[1])
+      .map(f => `<li>${f[0] === L && L > 1 ? '<span class="new">New</span>' : ''}${f[2]}</li>`).join('');
+    card.querySelectorAll('.gp-art [data-from]').forEach(el => {
+      const from = +el.dataset.from, to = el.dataset.to ? +el.dataset.to : 5;
+      el.classList.toggle('off', !(L >= from && L <= to));
+    });
+  });
+}
+document.getElementById('gp-level').addEventListener('input', level);
+level();
+
+/* The personality dials. Formulas from playtest/director.py and modules/delian_tomb: each option's score gets gaussian
+   noise of sd 0.08, so P(a beats b) = Phi((a - b) / (0.08 * sqrt 2)). */
+function phi(x) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(x)), d = 0.3989423 * Math.exp(-x * x / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 0.3302780))));
+  return x > 0 ? 1 - p : p;
+}
+const beats = (a, b) => phi((a - b) / (0.08 * Math.SQRT2));
+/* the stock party at 1st level, from playtest/builder.py; the fifth and sixth are Grukk and Lyra */
+const MEMBERS = [['Clarence', 12, '--s1'], ['Orik', 12, '--s4'], ['Pip', 10, '--s3'], ['Zirael', 7, '--s7'], ['Grukk', 14, '--s2'], ['Lyra', 10, '--s5']];
+let partyN = 4;
+function dials() {
+  const c = +document.getElementById('d-caution').value, q = +document.getElementById('d-curiosity').value;
+  document.getElementById('o-caution').textContent = c.toFixed(2);
+  document.getElementById('o-curiosity').textContent = q.toFixed(2);
+  const pct = v => Math.round(v * 100) + '%';
+  /* when it rests: the living members' pooled HP against 0.5 + 0.3 x caution (playtest/run.py, maybe_short_rest) */
+  const party = MEMBERS.slice(0, partyN), total = party.reduce((t, m) => t + m[1], 0), th = 0.5 + 0.3 * c;
+  const pool = document.getElementById('v-pool');
+  pool.innerHTML = `<span class="seg" style="flex:1 1 0;--acc:var(--s3)"></span>`
+    + `<span class="spare" style="width:${(1 - th) * 100}%"></span><span class="mark" style="left:${th * 100}%"></span>`;
+  pool.setAttribute('aria-label', `A pool of ${total} hit points, with the rest line at ${Math.round(th * total)}`);
+  document.getElementById('v-pool-names').innerHTML = `<span>0</span><span>${total} HP across ${partyN}</span>`;
+  document.getElementById('v-pool-cap').innerHTML = `Everyone's hit points, pooled, however the damage is spread. It takes a short rest once the pool drops below <b>${Math.round(th * total)} of ${total}</b> (${pct(th)}), so the striped part is what it can lose first.`;
+  /* when it runs: in a boss fight, once down >= (0.5 - 0.25 x caution) x living members (playtest/combat.py, should_retreat) */
+  const fr = 0.5 - 0.25 * c, k = Math.ceil(fr * partyN - 1e-9);
+  const order = party.map((m, i) => [m, i]).sort((a, b) => a[0][1] - b[0][1] || b[1] - a[1]).slice(0, k).map(x => x[1]);
+  const row = document.getElementById('v-party');
+  row.innerHTML = party.map((m, i) => `<div class="pc-fig${order.includes(i) ? ' down' : ''}"><svg viewBox="0 0 24 32" aria-hidden="true"><circle cx="12" cy="7" r="5.5" fill="var(${m[2]})"/><path d="M3 30 V20 Q3 13.5 12 13.5 Q21 13.5 21 20 V30 Z" fill="var(${m[2]})"/></svg>${m[0]}${order.includes(i) ? '<br>down' : ''}</div>`).join('');
+  row.setAttribute('aria-label', `${k} of ${partyN} party members down`);
+  document.getElementById('v-party-cap').innerHTML = `In a fight with a boss, it pulls out once <b>${k} of ${partyN}</b> are down.`;
+  document.getElementById('r-explore').textContent = pct(beats(0.25 + 0.4 * q, 0.6 - 0.3 * q));
+  document.getElementById('r-open').textContent = pct(beats(0.2 + 0.6 * q, 0.5 + 0.2 * c));
+}
+['d-caution', 'd-curiosity'].forEach(id => document.getElementById(id).addEventListener('input', dials));
+document.querySelectorAll('.party-size button').forEach(b => b.addEventListener('click', () => {
+  partyN = +b.dataset.n;
+  document.querySelectorAll('.party-size button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  dials();
+}));
+dials();
+
+/* The run. Rooms sit where the module's x, y put them. HP from the log of run 4101645 on the reworked engine. */
+const ROOMS = { Smithy: [0, 1], Wood: [1, 1], Patrol: [2, 1], 1: [3, 1], 2: [4, 1], 3: [5, 1], 4: [6, 1], 5: [6, 0], Home: [0, 0] };
+const LABEL = { Smithy: 'Smithy', Wood: 'Wood', Patrol: 'Patrol', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', Home: 'Home' };
+const EDGES = [['Smithy', 'Wood'], ['Wood', 'Patrol'], ['Patrol', '1'], ['1', '2'], ['2', '3'], ['3', '4'], ['4', '5'], ['Smithy', 'Home']];
+const PCS = [['Clarence', 12, '--s1'], ['Orik', 12, '--s4'], ['Pip', 10, '--s3'], ['Zirael', 7, '--s7']];
+const STEPS = [
+  { at: 'Smithy', name: "Lars's smithy", hp: [12, 12, 10, 7], seen: ['Smithy'] },
+  { at: 'Wood', name: 'The Boar Wood', hp: [12, 12, 10, 7], seen: ['Smithy', 'Wood'] },
+  { at: 'Patrol', name: 'Goblin patrol', hp: [12, 12, 10, 7], seen: ['Smithy', 'Wood', 'Patrol'] },
+  { at: '1', name: '1 · The entrance', hp: [12, 12, 10, 7], seen: ['Smithy', 'Wood', 'Patrol', '1'] },
+  { at: '2', name: '2 · The offering room', hp: [12, 12, 10, 7], seen: ['Smithy', 'Wood', 'Patrol', '1', '2'] },
+  { at: '3', name: '3 · The scythe trap', hp: [12, 12, 10, 7], seen: ['Smithy', 'Wood', 'Patrol', '1', '2', '3'] },
+  { at: '4', name: '4 · The Hall of the Oathkeeper', hp: [12, 12, 0, 0], seen: ['Smithy', 'Wood', 'Patrol', '1', '2', '3', '4'] },
+  { at: '4', name: '4 · Where next?', hp: [12, 12, 0, 0], seen: ['Smithy', 'Wood', 'Patrol', '1', '2', '3', '4'] },
+  { at: '5', name: '5 · The tomb', hp: [12, 12, 0, 0], seen: ['Smithy', 'Wood', 'Patrol', '1', '2', '3', '4', '5'] },
+  { at: '5', name: '5 · The righteous dead', hp: [8, 12, 0, 0], seen: ['Smithy', 'Wood', 'Patrol', '1', '2', '3', '4', '5'] },
+  { at: 'Home', name: 'Back in Villane', hp: [8, 12, 0, 0], seen: ['Smithy', 'Wood', 'Patrol', '1', '2', '3', '4', '5', 'Home'] }
+];
+/* What each Guinea Pig is doing in each step: [state, caption], in PCS order. States drive the CSS animations. */
+const ACTS = [
+  { do: [['idle', ''], ['act', 'tracks: 18 vs DC 10'], ['idle', ''], ['idle', '']], foes: [] },
+  { do: [['act', 'on watch'], ['sleep', 'asleep'], ['sleep', 'asleep'], ['sleep', 'asleep']], foes: [['No boar tonight', 'none']] },
+  { do: [['attack', 'javelin'], ['spell', 'toll the dead'], ['sneak', 'sneaks'], ['fumble', 'nat 1 on stealth']], foes: [['Goblin', 'gone'], ['Goblin', 'gone']] },
+  { do: [['sneak', 'sneaks'], ['spell', 'toll the dead'], ['attack', 'Sneak Attack'], ['attack', 'dagger']], foes: [['Goblin guard', 'gone'], ['Goblin guard', 'gone']] },
+  { do: [['fumble', 'nat 1'], ['idle', ''], ['attack', 'crit for 19'], ['spell', 'burning hands, twice']], foes: [['Goblins × 5', 'gone']] },
+  { do: [['dodge', 'dodges the scythe'], ['idle', ''], ['fumble', 'misses the plate'], ['idle', '']], foes: [['Scythe trap', 'gone']] },
+  { do: [['attack', 'finishes the bugbear'], ['spell', 'bless'], ['dead', 'falls in round 1'], ['dead', 'falls in round 2']], foes: [['Goblin shaman', 'gone'], ['Bugbear', 'gone'], ['Bess, freed', 'ally']] },
+  { do: [['walk', 'onward'], ['walk', 'onward'], ['dead', ''], ['dead', '']], foes: [['Secret door, open', 'none'], ['Bess', 'ally']] },
+  { do: [['idle', ''], ['act', 'opens a sarcophagus'], ['dead', ''], ['dead', '']], foes: [['Bess', 'ally']], solo: 1 },
+  { do: [['hit', 'drops, then gets back up'], ['heal', 'healing word'], ['dead', ''], ['dead', '']], foes: [['Skeleton', 'gone'], ['Skeleton', 'gone'], ['Bess', 'ally']] },
+  { do: [['walk', 'carries the Goblin Slayer'], ['walk', 'heads home'], ['dead', ''], ['dead', '']], foes: [['Bess, home', 'ally']] }
+];
+/* The stage reuses each card's portrait at 1st level. */
+const ART = {};
+function art(i) {
+  const key = PCS[i][0].toLowerCase();
+  if (!ART[key]) {
+    const src = document.querySelector(`.gp[data-gp="${key}"] .gp-art`), c = src.cloneNode(true);
+    c.querySelectorAll('[data-from]').forEach(el => { if (+el.dataset.from > 1) el.remove(); else el.classList.remove('off'); });
+    c.removeAttribute('role'); c.removeAttribute('aria-label'); c.removeAttribute('class'); c.setAttribute('aria-hidden', 'true');
+    ART[key] = c.outerHTML;
+  }
+  return ART[key];
+}
+let cur = 0;
+function drawMap() {
+  if (!W('c-map')) return;
+  const w = W('c-map'), h = 112, svg = svgIn('c-map', h), s = STEPS[cur];
+  const X = i => 22 + i * (w - 44) / 6, Y = j => j ? 74 : 20;
+  const p = id => [X(ROOMS[id][0]), Y(ROOMS[id][1])];
+  const seen = new Set(s.seen);
+  EDGES.forEach(([a, b]) => {
+    svg.append('line').attr('x1', p(a)[0]).attr('y1', p(a)[1]).attr('x2', p(b)[0]).attr('y2', p(b)[1])
+      .attr('stroke', seen.has(a) && seen.has(b) ? cssv('--ink-2') : cssv('--rule')).attr('stroke-width', 3)
+      .attr('stroke-dasharray', a === '4' ? '4 4' : null);
+  });
+  Object.keys(ROOMS).forEach(id => {
+    const [x, y] = p(id), on = id === s.at;
+    svg.append('circle').attr('cx', x).attr('cy', y).attr('r', on ? 11 : 7)
+      .attr('fill', on ? cssv('--pen') : seen.has(id) ? cssv('--ink-2') : cssv('--bg'))
+      .attr('stroke', on ? cssv('--pen') : seen.has(id) ? cssv('--ink-2') : cssv('--muted')).attr('stroke-width', 2);
+    const below = ROOMS[id][1] === 1;
+    if (below) svg.append('text').attr('class', on ? 'cur' : null).attr('x', x).attr('text-anchor', 'middle').attr('y', y + 28).text(LABEL[id]);
+    else svg.append('text').attr('class', on ? 'cur' : null).attr('x', id === '5' ? x - 16 : x + 16).attr('text-anchor', id === '5' ? 'end' : 'start').attr('y', y).attr('dy', '.35em').text(LABEL[id]);
+  });
+}
+function drawStage() {
+  const s = STEPS[cur];
+  document.getElementById('stage-room').textContent = s.name;
+  const a = ACTS[cur];
+  const foes = a.foes.length ? `<div class="foes">${a.foes.map(([t, k]) => `<span class="${k}">${t}</span>`).join('')}</div>` : '<div class="foes"></div>';
+  document.getElementById('stage-hp').innerHTML = foes + '<div class="actors">' + PCS.map(([n, max, col], i) => {
+    const v = s.hp[i], dead = v === 0, low = v / max < 0.5, [state, say] = dead ? ['dead', a.do[i][1]] : a.do[i];
+    return `<div class="actor ${state}${low && !dead ? ' low' : ''}${a.solo === i ? ' solo' : ''}" style="--acc:var(${col})"><div class="fig">${art(i)}</div><b>${n}</b><span class="track"><span class="fill" style="width:${100 * v / max}%"></span></span><div class="hpn">${dead ? 'Dead' : v + ' / ' + max + ' HP'}</div><div class="say">${say}</div></div>`;
+  }).join('') + '</div>';
+  drawMap();
+}
+const stepEls = [...document.querySelectorAll('.step')];
+function setStep(i) { cur = i; stepEls.forEach((e, k) => e.classList.toggle('on', k === i)); drawStage(); }
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) setStep(+e.target.dataset.i); }), { rootMargin: '-45% 0px -45% 0px' });
+  stepEls.forEach(e => io.observe(e));
+}
+
+const DATA = {
+  waffle: [
+    ['Finished, nobody died', 1556, '--s3'], ['Finished, with deaths', 387, '--s4'],
+    ['Wiped in the offering room', 4, '--s2'], ['Wiped in the Hall of the Oathkeeper', 28, '--s8'], ['Wiped in the tomb', 25, '--s7']
+  ],
+  compare: [['Random, 4th level', 3.2, 5.3], ['Random, 5th level', 18.5, 24.2], ['Random, 5th to 6th', 26.9, 33.4], ['Six players, unscaled', 70.8, 87.7], ['Six players, scaled', 62.6, 80.0]],
+  size: [['Three players', 88.0], ['Four players', 97.2], ['Five players', 99.5], ['Six players', 99.2]]
+};
+function hbars(id, rows, opt) {
+  if (!W(id)) return;
+  const w = W(id), lw = opt.lw(w), rowH = 36, svg = svgIn(id, rows.length * rowH);
+  const x = d3.scaleLinear().domain([0, opt.max]).range([0, w - lw - 60]);
+  const g = svg.selectAll('g').data(rows).join('g').attr('transform', (d, i) => `translate(0,${i * rowH})`);
+  g.append('text').attr('class', 'lab').attr('y', rowH / 2).attr('dy', '.35em').text(d => d[0]);
+  g.append('rect').attr('x', lw).attr('y', rowH / 2 - 8).attr('height', 16).attr('rx', 2).attr('width', d => Math.max(1, x(d[1]))).attr('fill', opt.color);
+  g.append('text').attr('x', d => lw + x(d[1]) + 8).attr('y', rowH / 2).attr('dy', '.35em').text(opt.fmt);
+}
+function drawWaffle() {
+  if (!W('c-waffle')) return;
+  const w = W('c-waffle'), cols = w < 560 ? 40 : 80, gap = 2, cell = Math.max(1, Math.floor((w - (cols - 1) * gap) / cols)), rows = Math.ceil(2000 / cols);
+  const svg = svgIn('c-waffle', rows * (cell + gap)), cells = [];
+  DATA.waffle.forEach(([lab, n, col]) => { for (let i = 0; i < n; i++) cells.push({ lab, n, col }); });
+  svg.selectAll('rect').data(cells).join('rect')
+    .attr('x', (d, i) => (i % cols) * (cell + gap)).attr('y', (d, i) => Math.floor(i / cols) * (cell + gap))
+    .attr('width', cell).attr('height', cell).attr('rx', 1).attr('fill', d => cssv(d.col))
+    .on('mousemove', (ev, d) => showTip(`<b>${d.lab}</b>${d.n.toLocaleString()} runs (${(d.n / 20).toFixed(1)}%)`, ev)).on('mouseleave', hideTip);
+  d3.select('#waffle-legend').html(DATA.waffle.map(([lab, n, col]) => `<span><i class="sw" style="background:var(${col})"></i>${lab} · ${n.toLocaleString()}</span>`).join(''));
+}
+function drawCompare() {
+  if (!W('c-compare')) return;
+  const w = W('c-compare'), lw = w < 560 ? 150 : 190, rowH = 34, rows = DATA.compare, svg = svgIn('c-compare', rows.length * rowH);
+  const x = d3.scaleLinear().domain([0, 100]).range([lw, w - 44]);
+  const g = svg.selectAll('g').data(rows).join('g').attr('transform', (d, i) => `translate(0,${i * rowH + rowH / 2})`);
+  g.append('text').attr('class', 'lab').attr('dy', '.35em').text(d => d[0]);
+  g.append('line').attr('x1', x(0)).attr('x2', x(100)).attr('stroke', cssv('--rule'));
+  g.append('line').attr('x1', d => x(d[1])).attr('x2', d => x(d[2])).attr('stroke', cssv('--ink-2')).attr('stroke-width', 2);
+  g.append('circle').attr('cx', d => x(d[1])).attr('r', 6).attr('fill', cssv('--muted'));
+  g.append('circle').attr('cx', d => x(d[2])).attr('r', 6).attr('fill', cssv('--pen'));
+  g.append('text').attr('x', d => x(d[2]) + 11).attr('dy', '.35em').text(d => Math.round(d[2]) + '%');
+}
+function drawAll() {
+  drawCompare(); drawStage(); drawWaffle();
+  hbars('c-size', DATA.size, { lw: () => 140, max: 100, color: (d, i) => i === 0 ? cssv('--s8') : cssv('--ink-2'), fmt: d => Math.round(d[1]) + '%' });
+}
+setStep(0); drawAll();
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(drawAll, 150); });
+if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
+</script>
+</body></html>
